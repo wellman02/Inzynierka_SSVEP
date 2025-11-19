@@ -1,0 +1,75 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Układ strony tytułowej
+% Szablon pracy dyplomowej
+% Wydział Informatyki 
+% Zachodniopomorski Uniwersytet Technologiczny w Szczecinie
+% autor Joanna Kołodziejczyk (jkolodziejczyk@zut.edu.pl)
+% Bardzo wczesnym pierwowzorem szablonu był
+% The Legrand Orange Book
+% Version 5.0 (29/05/2025)
+%
+% Modifications to LOB assigned by %JK
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	STRONA TYTUŁOWA - NIE ZMIENIAĆ
+%----------------------------------------------------------------------------------------
+\begingroup
+\firaoldstyle  %Set sans serif fonts for title page
+\centering %Center all paragraphs
+\thispagestyle{empty} % Suppress headers and footers on the title page
+
+%----------------------------------------------------------------------------------------
+%	LOGOTYPY - NIE ZMIENIAĆ
+%----------------------------------------------------------------------------------------
+    \includegraphics[scale=.4]{logo5.jpg}\\[.75cm]
+
+%%%
+Wydział Informatyki\\[.25cm]
+kierunek studiów: \field\\[.25cm]
+specjalność: \speciality\\[1.75cm]
+%----------------------------------------------------------------------------------------
+%	TYP - NIE ZMIENIAĆ
+%----------------------------------------------------------------------------------------
+{\Large \degreename}\\[1cm]
+
+%----------------------------------------------------------------------------------------
+%	TYTUŁ - NIE ZMIENIAĆ
+%----------------------------------------------------------------------------------------
+% {\color{blueZUT} 
+\Large {\bfseries \MakeUppercase  \ttitle }\\[.5cm]% Thesis title
+\large {\bfseries \MakeUppercase \ttitleEng} \\[.5cm]% Thesis title in English
+
+%----------------------------------------------------------------------------------------
+%	AUTOR - NIE ZMIENIAĆ
+%----------------------------------------------------------------------------------------
+ % {\color{blueZUT} {
+{\large \bfseries \authornames}\\[.5cm]
+{nr albumu: \bfseries {\noalbum}}\\[1cm]
+
+%----------------------------------------------------------------------------------------
+%	OPIEKUN PRACY - NIE ZMIENIAĆ
+%----------------------------------------------------------------------------------------
+
+{\large  Opiekun:}\\[.5cm]
+{\large \bfseries{\supname}}\\[.5cm]
+{\departmentname}\\[1cm]
+
+%----------------------------------------------------------------------------------------
+%	DODATKOWY OPIEKUN PRACY - NIE ZMIENIAĆ
+%----------------------------------------------------------------------------------------
+
+\ifdefined\supExt
+    {\large Opiekun zewnętrzny:}\\[.5cm]
+    {\large \bfseries{\supExt}}\\[.5cm]
+    \departmentnameExt
+\fi
+
+%----------------------------------------------------------------------------------------
+%	DÓŁ STRONY - NIE ZMIENIAĆ
+%----------------------------------------------------------------------------------------
+~\vfill
+\placesubmit, \yearsubmit\\
+
+\endgroup
+

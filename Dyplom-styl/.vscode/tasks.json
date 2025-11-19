@@ -1,0 +1,34 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build LaTeX (clean)",
+      "type": "shell",
+      "command": "powershell",
+      "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", ".\\build.ps1"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Clean build artifacts",
+      "type": "shell",
+      "command": "powershell",
+      "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", "Remove-Item -Path '.\\build\\*' -Recurse -Force -ErrorAction SilentlyContinue; Write-Host 'Build folder cleared!' -ForegroundColor Green"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Open PDF",
+      "type": "shell",
+      "command": "powershell",
+      "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", "Invoke-Item '.\\build\\main.pdf'"],
+      "problemMatcher": []
+    }
+  ]
+}
