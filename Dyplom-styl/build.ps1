@@ -37,8 +37,16 @@ Write-Host "4/4: Third pdflatex pass..." -ForegroundColor Cyan
 & pdflatex -interaction=nonstopmode "-output-directory=$outputDir" $mainFile 2>&1 > $null
 
 Write-Host "`nCompilation complete!" -ForegroundColor Green
-if (Test-Path "$outputDir\main.pdf") {
-    Write-Host "PDF successfully generated at: $outputDir\main.pdf" -ForegroundColor Yellow
+$pdfFound = Get-ChildItem -Path $outputDir -Filter "main.pdf" -ErrorAction SilentlyContinue
+$pdfInCwd = Get-ChildItem -Path (Get-Location) -Filter "main.pdf" -ErrorAction SilentlyContinue
+
+if ($pdfFound) {
+    Write-Host "PDF successfully generated at: $($pdfFound[0].FullName)" -ForegroundColor Yellow
+} elseif ($pdfInCwd) {
+    $src = $pdfInCwd[0].FullName
+    $dst = Join-Path $outputDir "main.pdf"
+    Move-Item -Path $src -Destination $dst -Force
+    Write-Host "PDF was generated in project root; moved to: $dst" -ForegroundColor Yellow
 } else {
     Write-Host "WARNING: PDF not found in $outputDir\main.pdf" -ForegroundColor Red
 }

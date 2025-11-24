@@ -4,3 +4,66 @@
 
 \chapter{Projekt oraz implementacja interfejsu SSVEP}
 
+W niniejszym rozdziale przedstawiono główne założenia projektowe oraz ogólną koncepcję implementacji systemu interfejsu mózg-komputer opartego na zjawisku wzrokowych potencjałów wywołanych stanu ustalonego. Celem projektu jest opracowanie rozwiązania umożliwiającego sterowanie kursorem myszy za pomocą odpowiedzi neuronalnych generowanych w odpowiedzi na migoczące bodźce wzrokowe. Konstrukcja systemu musi zapewniać nie tylko funkcjonalność pozwalającą na wykonywanie podstawowych komend ruchu kursora, ale również powtarzalność wyników. Z tego względu nacisk położono na równowagę pomiędzy prostotą konfiguracji a jakością akwizycji sygnału EEG.
+
+W roli modułu stymulującego zastosowany zostanie ekran LCD, na którym umieszczone będą pola migające z różnymi częstotliwościami. Nakładka została zaimplementowana jako bezramkowe, przezroczyste okno, działające zawsze na wierzchu i ignorujące wejście użytkownika. Zdecydowano się na wariant pięciu niezależnych stymulatorów, z których cztery odpowiadać będą za sterowanie kierunkowe, natomiast piąty będzie pełnił funkcję symulacji kliknięcia. Na rysunku 3.1 został przedstawiony wygląd stymulatora.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{ssvep_stym.PNG}
+    \caption{Zrzut ekranu przedstawiający stymulator. Kolor jednego z pól został zmieniony na czerwony.}
+    \label{fig:ssvep_stym}
+\end{figure}
+
+Nakładka programowa generująca stymulatory umożliwia edycję parametrów wizualnych, takich jak położenie, kolor, rozmiar oraz przezroczystość poszczególnych pól, co pozwoli dostosować ich wygląd do wymogów eksperymentu oraz indywidualnych preferencji badanego. Renderowanie wszystkich elementów odbywa się w rytmie zależnym od częstotliwości odświeżania monitora, która jest odczytywana dynamicznie za pomocą polecenia systemowego wmic. Aplikacja wyznacza z tej wartości wszystkie dozwolone częstotliwości migotania, ograniczając je wyłącznie do dzielników częstotliwości odświeżania monitora. Mechanizm ten wymusza synchronizację migotania z częstotliwością odświeżania matrycy LCD.
+
+Każdy bodziec przedstawiony jest jako prostokąt, którego widoczność jest przełączana na podstawie licznika klatek. Logika migotania została oparta na porównaniu aktualnego numeru 
+klatki z liczbą klatek przypadającą na półokres danej częstotliwości.
+
+\lstset{language=Python}
+\begin{lstlisting}
+
+class Controller:
+    def __init__(self):
+
+    [...]
+
+    # Timer do odświeżania na podstawie refresh rate
+    self.timer = QTimer()
+    self.timer.timeout.connect(self.update)
+    self.timer.start(16)  # ~60 FPS (1000ms / 60)
+    
+    # Licznik czasu dla każdego stimulus (do obliczenia widoczności)
+    self.frame_counter = 0
+
+def paintEvent(self):
+    qp = QPainter(self)
+    for stim in self.stimuli:
+        # Oblicz czy stimulus powinien być widoczny na podstawie blink_frequency
+        if stim.blink_frequency > 0:
+            # Ile klatek trwa jeden cykl (on/off)
+            frames_per_cycle = int(60 / stim.blink_frequency)  # zakładając 60 FPS
+            # Czy jesteśmy w fazie "on"?
+            is_visible = (self.frame_counter % (frames_per_cycle * 2)) < frames_per_cycle
+            
+            if is_visible:
+                qp.fillRect(stim.rect, stim.get_qcolor())
+        else:
+            # Jeśli blink_frequency == 0, zawsze widoczny
+            qp.fillRect(stim.rect, stim.get_qcolor())
+    
+    self.frame_counter += 1
+
+\end{lstlisting}
+
+Dzięki temu częstotliwość prezentacji bodźca jest deterministyczna, a jej wartość wynika bezpośrednio z relacji między liczbą klatek na sekundę a wybraną częstotliwością migotania. W docelowej konfiguracji stymulatory będą prezentowane na osobnym monitorze. To odseparuje warstwę interakcji użytkownika z komputerem od warstwy pobudzenia wzrokowego.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{opcje_ssvep.PNG}
+    \caption{Okienko pozwalające na zmianę parametrów poszczególnych pól stymulatora.}
+    \label{fig:ssvep_options}
+\end{figure}
+
+
+Drugi podsystem realizuje rejestrację oraz wstępne przetwarzanie sygnału EEG. Dane pobierane są z trzech elektrod umieszczonych w punktach O1, O2, Oz, elektrody odniesienia umieszczonej na małżowinie usznej oraz elektrody uziemiającej umieszczonej w punkcie Pz. Sygnał próbkowany z częstotliwością 256~Hz poddawany jest przetwarzaniu wstępnemu. Wstępna obróbka obejmuje filtrację pasmową 8-40 Hz, a także filtrację szumów sieciowych (filtr notch 50~Hz). Następnie sygnał poddawany jest metodzie ICA (n\_components równe ilości kanałów EEG), by wyizolować komponenty odpowiadające faktycznej aktywności neuronalnej od artefaktów. Dla każdego komponentu ICA wykonywana jest szybka transformacja. Na podstawie widma częstotliwościowego obliczana jest gęstość mocy sygnału, a następnie analizowane są pasma odpowiadające częstotliwościom pięciu stymulujących bodźców. W celu zwiększenia czułości detekcji uwzględniane są również pierwsze harmoniczne każdej częstotliwości bodźca. Klasyfikacja polega na wyznaczeniu maksymalnej wartości PSD w określonym paśmie wokół każdej częstotliwości bodźca. Bodziec, którego częstotliwość odpowiada składowej z najwyższą mocą, uznaje się za aktualnie obserwowaną w odpowiedzi mózgowej użytkownika. Wynik klasyfikacji wykorzystywany jest następnie do sterowania ruchem kursora lub generowania kliknięcia myszy w interfejsie użytkownika.

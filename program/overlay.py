@@ -29,7 +29,7 @@ class OverlayWindow(QMainWindow):
         # Licznik czasu dla każdego stimulus (do obliczenia widoczności)
         self.frame_counter = 0
 
-    def paintEvent(self, event):
+    def paintEvent(self):
         qp = QPainter(self)
         for stim in self.stimuli:
             # Oblicz czy stimulus powinien być widoczny na podstawie blink_frequency
@@ -112,7 +112,7 @@ class Controller:
         # keyboard.add_hotkey("ctrl+shift+o", self.open_settings) #nie wiem czemu nie działa poprawnie
         
         # skróty lokalne
-        settings_shortcut = QShortcut("Ctrl+Shift+O", self.overlay)
+        settings_shortcut = QShortcut("Ctrl+Shift+Alt+O", self.overlay)
         settings_shortcut.activated.connect(self.open_settings)
     
     def open_settings(self):
@@ -181,7 +181,6 @@ class SettingsWindow(QWidget):
         edit_layout.addWidget(QLabel("Height")); edit_layout.addWidget(self.h_spin)
         
         # Hz
-        
         self.frequency = QComboBox()
         self.frequency.addItems([str(hz) for hz in self.allowed_hz])
         self.frequency.currentIndexChanged.connect(self.update_frequency)
