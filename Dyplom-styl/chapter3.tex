@@ -6,7 +6,36 @@
 
 W niniejszym rozdziale przedstawiono główne założenia projektowe oraz ogólną koncepcję implementacji systemu interfejsu mózg-komputer opartego na zjawisku wzrokowych potencjałów wywołanych stanu ustalonego. Celem projektu jest opracowanie rozwiązania umożliwiającego sterowanie kursorem myszy za pomocą odpowiedzi neuronalnych generowanych w odpowiedzi na migoczące bodźce wzrokowe. Konstrukcja systemu musi zapewniać nie tylko funkcjonalność pozwalającą na wykonywanie podstawowych komend ruchu kursora, ale również powtarzalność wyników. Z tego względu nacisk położono na równowagę pomiędzy prostotą konfiguracji a jakością akwizycji sygnału EEG.
 
-W roli modułu stymulującego zastosowany zostanie ekran LCD, na którym umieszczone będą pola migające z różnymi częstotliwościami. Nakładka została zaimplementowana jako bezramkowe, przezroczyste okno, działające zawsze na wierzchu i ignorujące wejście użytkownika. Zdecydowano się na wariant pięciu niezależnych stymulatorów, z których cztery odpowiadać będą za sterowanie kierunkowe, natomiast piąty będzie pełnił funkcję symulacji kliknięcia. Na rysunku 3.1 został przedstawiony wygląd stymulatora.
+\subsection*{Założenia funkcjonalne systemu} 
+
+\begin{itemize}
+    \item System umożliwia sterowanie kursorem w czterech kierunkach oraz generowanie kliknięcia
+    \item Użytkownik wybiera komendę poprzez skupienie wzroku na jednym z pięciu migających bodźców
+    \item System dokonuje analizy sygnału w oknach czasowych o stałej długości
+    \item Interfejs pozwala na konfigurację parametrów migających pól
+\end{itemize}
+
+\subsection*{Założenia pozafunkcjonalne systemu} 
+
+\begin{itemize}
+    \item Stabilność działania systemu nie zależy od jakości łącza Bluetooth
+    \item Moduł przetwarzania sygnału musi być odporny na zakłócenia w warunkach laboratoryjnych
+    \item Aplikacja działa w sposób deterministyczny
+    \item System działa w czasie rzeczywistym
+\end{itemize}
+
+
+
+Do rejestracji sygnału EEG zostanie zastosowany moduł OpenBCI Cyton \cite{openbci} oparty na 8-kanałowym wzmacniaczu Texas Instruments ADS1299, 24-bitowym przetworniku analogowo-cyfrowy oraz 8-bitowym mikroprocesorze PIC32MX250F128B firmy Microchip Technology. Urządzenie zostanie połączone bezprzewodowo z komputerem za pomocą Bluetooth 4.0.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Cyton.jpg}
+    \caption{Urządzenie, które zostanie użyte do przeprowadzenia eksperymentu. Źródło: \cite{openbci}}
+    \label{fig:cyton}
+\end{figure}
+
+W roli modułu stymulującego zastosowany zostanie ekran LCD, na którym umieszczone będą pola migające z różnymi częstotliwościami. Nakładka została zaimplementowana jako bezramkowe, przezroczyste okno, działające zawsze na wierzchu i ignorujące wejście użytkownika. Zdecydowano się na wariant pięciu niezależnych migających pól, z których cztery odpowiadać będą za sterowanie kierunkowe, natomiast piąty będzie pełnił funkcję symulacji kliknięcia. Na rysunku 3.1 został przedstawiony wygląd nakładki.
 
 \begin{figure}[!ht]
     \centering
@@ -15,48 +44,7 @@ W roli modułu stymulującego zastosowany zostanie ekran LCD, na którym umieszc
     \label{fig:ssvep_stym}
 \end{figure}
 
-Nakładka programowa generująca stymulatory umożliwia edycję parametrów wizualnych, takich jak położenie, kolor, rozmiar oraz przezroczystość poszczególnych pól, co pozwoli dostosować ich wygląd do wymogów eksperymentu oraz indywidualnych preferencji badanego. Renderowanie wszystkich elementów odbywa się w rytmie zależnym od częstotliwości odświeżania monitora, która jest odczytywana dynamicznie za pomocą polecenia systemowego wmic. Aplikacja wyznacza z tej wartości wszystkie dozwolone częstotliwości migotania, ograniczając je wyłącznie do dzielników częstotliwości odświeżania monitora. Mechanizm ten wymusza synchronizację migotania z częstotliwością odświeżania matrycy LCD.
-
-Każdy bodziec przedstawiony jest jako prostokąt, którego widoczność jest przełączana na podstawie licznika klatek. Logika migotania została oparta na porównaniu aktualnego numeru 
-klatki z liczbą klatek przypadającą na półokres danej częstotliwości.
-
-\lstset{language=Python}
-\begin{lstlisting}
-
-class Controller:
-    def __init__(self):
-
-    [...]
-
-    # Timer do odświeżania na podstawie refresh rate
-    self.timer = QTimer()
-    self.timer.timeout.connect(self.update)
-    self.timer.start(16)  # ~60 FPS (1000ms / 60)
-    
-    # Licznik czasu dla każdego stimulus (do obliczenia widoczności)
-    self.frame_counter = 0
-
-def paintEvent(self):
-    qp = QPainter(self)
-    for stim in self.stimuli:
-        # Oblicz czy stimulus powinien być widoczny na podstawie blink_frequency
-        if stim.blink_frequency > 0:
-            # Ile klatek trwa jeden cykl (on/off)
-            frames_per_cycle = int(60 / stim.blink_frequency)  # zakładając 60 FPS
-            # Czy jesteśmy w fazie "on"?
-            is_visible = (self.frame_counter % (frames_per_cycle * 2)) < frames_per_cycle
-            
-            if is_visible:
-                qp.fillRect(stim.rect, stim.get_qcolor())
-        else:
-            # Jeśli blink_frequency == 0, zawsze widoczny
-            qp.fillRect(stim.rect, stim.get_qcolor())
-    
-    self.frame_counter += 1
-
-\end{lstlisting}
-
-Dzięki temu częstotliwość prezentacji bodźca jest deterministyczna, a jej wartość wynika bezpośrednio z relacji między liczbą klatek na sekundę a wybraną częstotliwością migotania. W docelowej konfiguracji stymulatory będą prezentowane na osobnym monitorze. To odseparuje warstwę interakcji użytkownika z komputerem od warstwy pobudzenia wzrokowego.
+Nakładka programowa umożliwi edycję parametrów wizualnych, takich jak położenie, kolor, rozmiar oraz przezroczystość poszczególnych pól, co pozwoli dostosować ich wygląd do wymogów eksperymentu oraz indywidualnych preferencji badanego. Renderowanie wszystkich elementów odbędzie się w rytmie zależnym od częstotliwości odświeżania monitora, która będzie odczytywana dynamicznie za pomocą polecenia systemowego wmic. Aplikacja wyznacza z tej wartości wszystkie dozwolone częstotliwości migotania, ograniczając je wyłącznie do dzielników częstotliwości odświeżania monitora. Mechanizm ten wymusza synchronizację migotania z częstotliwością odświeżania matrycy LCD. Każdy bodziec przedstawiony będzie jako prostokąt, którego widoczność będzie przełączana na podstawie licznika klatek. Logika migotania zostanie oparta na porównaniu aktualnego numeru klatki z liczbą klatek przypadającą na półokres danej częstotliwości. Dzięki temu częstotliwość prezentacji bodźca będzie deterministyczna, a jej wartość będzie wynikać bezpośrednio z relacji między liczbą klatek na sekundę a wybraną częstotliwością migotania. W docelowej konfiguracji stymulatory będą prezentowane na osobnym monitorze o częstotliwości odświeżania równej 60~Hz. To odseparuje warstwę interakcji użytkownika z komputerem od warstwy pobudzenia wzrokowego.
 
 \begin{figure}[!ht]
     \centering
@@ -66,4 +54,6 @@ Dzięki temu częstotliwość prezentacji bodźca jest deterministyczna, a jej w
 \end{figure}
 
 
-Drugi podsystem realizuje rejestrację oraz wstępne przetwarzanie sygnału EEG. Dane pobierane są z trzech elektrod umieszczonych w punktach O1, O2, Oz, elektrody odniesienia umieszczonej na małżowinie usznej oraz elektrody uziemiającej umieszczonej w punkcie Pz. Sygnał próbkowany z częstotliwością 256~Hz poddawany jest przetwarzaniu wstępnemu. Wstępna obróbka obejmuje filtrację pasmową 8-40 Hz, a także filtrację szumów sieciowych (filtr notch 50~Hz). Następnie sygnał poddawany jest metodzie ICA (n\_components równe ilości kanałów EEG), by wyizolować komponenty odpowiadające faktycznej aktywności neuronalnej od artefaktów. Dla każdego komponentu ICA wykonywana jest szybka transformacja. Na podstawie widma częstotliwościowego obliczana jest gęstość mocy sygnału, a następnie analizowane są pasma odpowiadające częstotliwościom pięciu stymulujących bodźców. W celu zwiększenia czułości detekcji uwzględniane są również pierwsze harmoniczne każdej częstotliwości bodźca. Klasyfikacja polega na wyznaczeniu maksymalnej wartości PSD w określonym paśmie wokół każdej częstotliwości bodźca. Bodziec, którego częstotliwość odpowiada składowej z najwyższą mocą, uznaje się za aktualnie obserwowaną w odpowiedzi mózgowej użytkownika. Wynik klasyfikacji wykorzystywany jest następnie do sterowania ruchem kursora lub generowania kliknięcia myszy w interfejsie użytkownika.
+Drugi podsystem będzie realizować rejestrację oraz wstępne przetwarzanie sygnału EEG. Dane będą pobierane z trzech elektrod umieszczonych w punktach O1, O2, Oz, elektrody odniesienia umieszczonej na wyrostku sutkowatym oraz elektrody uziemiającej umieszczonej na wyrostku sutkowatym drugiego ucha. Wstępna obróbka obejmuje filtrację pasmową 0.5-30~Hz. Dzięki temu wyeliminuje się także częstotliwość związaną z instalacją elektryczną (pasmo 50~Hz). Na każdym kanale wykonywana jest szybka transformacja Fouriera, która przekształca sygnał z dziedziny czasu do dziedziny częstotliwości. Na podstawie otrzymanego widma wyznaczany jest estymator gęstości widmowej mocy. Z tak obliczonego PSD wyodrębniane są pasma odpowiadające pięciu częstotliwościom stymulacji, po czym wartości mocy w tych zakresach są sumowane. W celu zwiększenia czułości detekcji uwzględniane będą również pierwsze harmoniczne każdej częstotliwości bodźca.
+
+Klasyfikacja będzie polegać na wyznaczeniu maksymalnej wartości PSD w paśmie $\pm 0.5$~Hz wokół każdej częstotliwości bodźca. Bodziec, którego częstotliwość odpowiada składowej z najwyższą mocą, zostanie uznany za aktualnie obserwowaną w odpowiedzi mózgowej użytkownika. Wynik klasyfikacji wykorzystywany będzie następnie do sterowania ruchem kursora lub generowania kliknięcia myszy w interfejsie użytkownika.
