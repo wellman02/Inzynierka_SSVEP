@@ -4,7 +4,10 @@
 
 \chapter{Projekt oraz implementacja interfejsu SSVEP}
 
-W niniejszym rozdziale przedstawiono główne założenia projektowe oraz ogólną koncepcję implementacji systemu interfejsu mózg-komputer opartego na zjawisku wzrokowych potencjałów wywołanych stanu ustalonego. Celem projektu jest opracowanie rozwiązania umożliwiającego sterowanie kursorem myszy za pomocą odpowiedzi neuronalnych generowanych w odpowiedzi na migoczące bodźce wzrokowe. Konstrukcja systemu musi zapewniać nie tylko funkcjonalność pozwalającą na wykonywanie podstawowych komend ruchu kursora, ale również powtarzalność wyników. Z tego względu nacisk położono na równowagę pomiędzy prostotą konfiguracji a jakością akwizycji sygnału EEG.
+W niniejszym rozdziale przedstawiono główne założenia projektowe oraz ogólną koncepcję implementacji systemu interfejsu mózg-komputer opartego na zjawisku wzrokowych potencjałów wywołanych stanu ustalonego.
+Celem projektu jest opracowanie rozwiązania umożliwiającego sterowanie kursorem myszy za pomocą odpowiedzi neuronalnych generowanych w odpowiedzi na migoczące bodźce wzrokowe.
+Konstrukcja systemu musi zapewniać nie tylko funkcjonalność pozwalającą na wykonywanie podstawowych komend ruchu kursora, ale również powtarzalność wyników.
+Z tego względu nacisk położono na równowagę pomiędzy prostotą konfiguracji a jakością akwizycji sygnału EEG.
 
 \section{Założenia projektowe}
 
@@ -16,23 +19,24 @@ Zdefiniowano dwie grupy wymagań: funkcjonalne, określające możliwości syste
     \item System umożliwia sterowanie kursorem w czterech kierunkach oraz generowanie kliknięcia.
     \item Użytkownik wybiera komendę poprzez skupienie wzroku na jednym z pięciu migających bodźców.
     \item System dokonuje analizy sygnału w oknach czasowych o stałej długości.
-    \item Interfejs pozwala na konfigurację parametrów migających pól.
+    \item Interfejs pozwala na konfigurację parametrów migających pól (kolor, pozycja, częstotliwość).
 \end{itemize}
 
 \subsection*{Założenia pozafunkcjonalne systemu} 
 
 \begin{itemize}
-    \item Stabilność działania systemu nie zależy od jakości łącza Bluetooth.
-    \item Moduł przetwarzania sygnału musi być odporny na zakłócenia w warunkach laboratoryjnych.
-    \item Aplikacja działa w sposób deterministyczny.
-    \item System działa w czasie rzeczywistym.
+    \item Stabilność działania systemu nie zależy od wahań jakości łącza Bluetooth (zastosowanie buforowania).
+    \item Moduł przetwarzania sygnału musi być odporny na typowe zakłócenia sieci energetycznej (50 Hz).
+    \item Aplikacja działa w sposób deterministyczny, zapewniając stałą częstotliwość odświeżania stymulatora.
+    \item System działa w czasie rzeczywistym z opóźnieniem akceptowalnym dla użytkownika.
 \end{itemize}
 
 \section{Model systemu}
 
-Ogólna architektura rozwiązania opiera się na interakcji trzech głównych modułów: modułu stymulującego, modułu rejestracji sygnału oraz modułu przetwarzającego. Schemat ogólny modelu systemu, obrazujący przepływ informacji między użytkownikiem a poszczególnymi blokami, przedstawiono na rysunku \ref{fig:model_systemu}.
-
-Moduł stymulujący odpowiada za prezentację bodźców wzrokowych (migających pól), które wywołują specyficzną odpowiedź w mózgu użytkownika. Moduł rejestracji odpowiada za akwizycję biologicznego sygnału EEG. Zarejestrowane dane trafiają do modułu przetwarzającego, gdzie następuje ich filtracja, analiza widmowa oraz klasyfikacja, której wynik jest przekładany na akcję sterującą (ruch kursora).
+Ogólna architektura rozwiązania opiera się na interakcji trzech głównych modułów: modułu stymulującego, modułu rejestracji sygnału oraz modułu przetwarzającego.
+Schemat ogólny modelu systemu, obrazujący przepływ informacji między użytkownikiem a poszczególnymi blokami, przedstawiono na rysunku \ref{fig:model_systemu}.
+Moduł stymulujący odpowiada za prezentację bodźców wzrokowych (migających pól), które wywołują specyficzną odpowiedź w mózgu użytkownika.
+Moduł rejestracji odpowiada za akwizycję biologicznego sygnału EEG. Zarejestrowane dane trafiają do modułu przetwarzającego, gdzie następuje ich filtracja, analiza widmowa oraz klasyfikacja, której wynik jest przekładany na akcję sterującą (ruch kursora).
 
 \begin{figure}[!ht]
     \centering
@@ -41,9 +45,10 @@ Moduł stymulujący odpowiada za prezentację bodźców wzrokowych (migających 
     \label{fig:model_systemu}
 \end{figure}
 
-\section{Zestaw technologii i wykorzystany sprzęt}
+\section{Zestaw technologii i proces rejestracji sygnału}
 
-Fizyczna realizacja systemu wymagała doboru odpowiednich narzędzi sprzętowych i programistycznych. Do rejestracji sygnału EEG zdecydowano się zastosować moduł OpenBCI Cyton \cite{openbci}, przedstawiony na rysunku \ref{fig:cyton}.
+Fizyczna realizacja systemu wymagała doboru odpowiednich narzędzi sprzętowych i programistycznych.
+Do rejestracji sygnału EEG zdecydowano się zastosować moduł OpenBCI Cyton \cite{openbci}, przedstawiony na rysunku \ref{fig:cyton}.
 
 \begin{figure}[!ht]
     \centering
@@ -52,41 +57,38 @@ Fizyczna realizacja systemu wymagała doboru odpowiednich narzędzi sprzętowych
     \label{fig:cyton}
 \end{figure}
 
-Urządzenie to oparte jest na 8-kanałowym wzmacniaczu Texas Instruments ADS1299, 24-bitowym przetworniku analogowo-cyfrowym oraz 8-bitowym mikroprocesorze PIC32MX250F128B firmy Microchip Technology. Komunikacja z jednostką centralną odbywa się bezprzewodowo w standardzie Bluetooth 4.0.
+Urządzenie to oparte jest na 8-kanałowym wzmacniaczu Texas Instruments ADS1299, 24-bitowym przetworniku analogowo-cyfrowym oraz 8-bitowym mikroprocesorze PIC32MX250F128B firmy Microchip Technology.
+Komunikacja z jednostką centralną odbywa się bezprzewodowo w standardzie Bluetooth 4.0 przy użyciu dedykowanego dongle'a USB.
 
-Warstwa programowa została zrealizowana w języku Python. Do obsługi interfejsu graficznego i stymulacji wybrano bibliotekę PyQt5, natomiast przetwarzanie sygnału oparto na bibliotekach: mne, BrainFlow, scipy oraz numpy.
+Warstwa programowa została zrealizowana w języku Python. Do obsługi interfejsu graficznego i stymulacji wybrano bibliotekę PyQt5.
+Kluczowym elementem implementacji procesu rejestracji jest wykorzystanie biblioteki \textbf{BrainFlow}, która zapewnia uniwersalne API do komunikacji z płytką Cyton.
+Proces akwizycji danych realizowany jest w pętli głównej programu:
+\begin{enumerate}
+    \item Nawiązanie połączenia szeregowego z urządzeniem poprzez port COM.
+    \item Inicjalizacja sesji i rozpoczęcie strumieniowania danych do bufora wewnętrznego.
+    \item Cykliczne pobieranie paczki próbek (zgodnej z rozmiarem okna analizy) dla wybranych kanałów EEG.
+\end{enumerate}
+Dane surowe są przechowywane w strukturach tablicowych biblioteki \texttt{numpy}, co umożliwia ich szybkie przetwarzanie numeryczne w kolejnych etapach.
 
-\section{Interfejs użytkownika i wygląd stymulatora}
+\section{Implementacja przetwarzania i klasyfikacji sygnału}
 
-Kluczowym elementem interakcji z użytkownikiem jest moduł stymulujący. Został on zaimplementowany w formie nakładki programowej - bezramkowego, przezroczystego okna, działającego zawsze na wierzchu i ignorującego bezpośrednie wejście użytkownika (kliknięcia). 
+Podsystem ten realizuje kluczowe zadania filtracji, transformacji oraz decyzyjności.
+Dane pobierane są z trzech elektrod zlokalizowanych w punktach O1, O2, Oz (kora wzrokowa) zgodnie z systemem 10-20, elektrody odniesienia na wyrostku sutkowatym oraz elektrody uziemiającej na drugim wyrostku.
+Wybór tych lokalizacji podyktowany jest fizjologią zjawiska SSVEP, które najsilniej manifestuje się w płacie potylicznym.
 
-Wygląd nakładki przedstawiono na rysunku \ref{fig:ssvep_stym}. Zdecydowano się na wariant pięciu niezależnych migających pól: cztery pola odpowiadają za sterowanie kierunkowe, natomiast piąte pełni funkcję symulacji kliknięcia.
+\subsection*{Przetwarzanie sygnału i agregacja kanałów}
 
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=0.8\textwidth]{ssvep_stym.PNG}
-    \caption{Zrzut ekranu przedstawiający stymulator. Kolor jednego z pól (aktywnego) został zmieniony na czerwony.}
-    \label{fig:ssvep_stym}
-\end{figure}
+Odebrany sygnał surowy podlega kilkuetapowej obróbce. Ze względu na fakt, że system korzysta z trzech kanałów pomiarowych, konieczne było opracowanie strategii ich agregacji w celu uzyskania jednego, wiarygodnego wyniku klasyfikacji.
+Zaimplementowano podejście oparte na uśrednianiu w dziedzinie częstotliwości (ang. \textit{spatial averaging}). Proces ten przebiega następująco:
 
-Renderowanie elementów odbywa się w rytmie zależnym od częstotliwości odświeżania monitora, odczytywanej dynamicznie za pomocą polecenia systemowego \texttt{wmic}. Aplikacja wyznacza dozwolone częstotliwości migotania, ograniczając je do dzielników częstotliwości odświeżania, co wymusza pełną synchronizację (vsync). Logika migotania oparta jest na liczniku klatek: widoczność prostokąta jest przełączana, gdy numer klatki osiągnie wartość odpowiadającą półokresowi danej częstotliwości. Dzięki temu prezentacja bodźca jest deterministyczna. W docelowej konfiguracji stymulatory prezentowane są na osobnym monitorze 60~Hz, co separuje warstwę stymulacji od interfejsu obsługiwanego systemu.
+\begin{enumerate}
+    \item \textbf{Filtracja wstępna:} Dla każdego kanału niezależnie stosowany jest filtr pasmowo-przepustowy Butterwortha 4. rzędu w zakresie 1--40 Hz oraz filtr notch dla częstotliwości 50 Hz, eliminujący zakłócenia sieci energetycznej.
+    \item \textbf{Transformacja do dziedziny częstotliwości:} Na przefiltrowanym sygnale z każdego kanału wykonywana jest szybka transformata Fouriera.
+    \item \textbf{Uśrednianie widma:} Obliczone widma amplitudowe z trzech kanałów są sumowane i uśredniane.
+\end{enumerate}
 
-Aplikacja umożliwia również dostosowanie wyglądu stymulatora. Na rysunku \ref{fig:ssvep_options} pokazano okno konfiguracyjne, które pozwala na edycję parametrów takich jak położenie, kolor, rozmiar oraz przezroczystość pól.
-
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=0.8\textwidth]{opcje_ssvep.PNG}
-    \caption{Okno konfiguracji parametrów wizualnych pól stymulatora.}
-    \label{fig:ssvep_options}
-\end{figure}
-
-\section{Implementacja procesu rejestracji i klasyfikacja}
-
-Ostatni podsystem realizuje rejestrację, przetwarzanie oraz klasyfikację sygnału. Dane pobierane są z trzech elektrod zlokalizowanych w punktach O1, O2, Oz (kora wzrokowa), elektrody odniesienia na wyrostku sutkowatym oraz elektrody uziemiającej na drugim wyrostku.
-
-\subsection*{Przetwarzanie sygnału}
-
-Wstępna obróbka sygnału obejmuje filtrację pasmową w zakresie 0.5--30~Hz, co pozwala wyeliminować składową stałą oraz zakłócenia sieci elektrycznej (50~Hz). Następnie na każdym kanale wykonywana jest szybka transformata Fouriera (FFT), przekształcająca sygnał z dziedziny czasu do dziedziny częstotliwości. Fragment kodu realizujący to przekształcenie przy użyciu biblioteki \texttt{numpy} przedstawiono na listingu \ref{alg:fft}.
+Takie podejście pozwala na zredukowanie szumu nieskorelowanego między kanałami oraz wzmocnienie wspólnej składowej sygnału wywołanego przez bodziec wzrokowy.
+Fragment kodu realizujący obliczanie FFT przedstawiono na listingu \ref{alg:fft}.
 
 \begin{lstlisting}[language=Python, caption=Fragment kodu obliczającego FFT, label=alg:fft]
 import numpy as np
@@ -98,7 +100,8 @@ def compute_fft(x, fs):
     return freqs, np.abs(X)
 \end{lstlisting}
 
-Na podstawie widma wyznaczany jest estymator gęstości widmowej mocy (PSD). Z obliczonego PSD wyodrębniane są pasma odpowiadające częstotliwościom stymulacji (wraz z ich pierwszymi harmonicznymi), a wartości mocy w tych zakresach są sumowane. Algorytm wyznaczania PSD zaprezentowano na listingu \ref{alg:psd}.
+Na podstawie uśrednionego widma wyznaczany jest estymator gęstości widmowej mocy (PSD).
+Z obliczonego PSD wyodrębniane są pasma odpowiadające częstotliwościom stymulacji. Algorytm wyznaczania PSD zaprezentowano na listingu \ref{alg:psd}.
 
 \begin{lstlisting}[language=Python, caption=Fragment algorytmu wyznaczania PSD, label=alg:psd]
 import numpy as np
@@ -111,9 +114,11 @@ def compute_psd(x, fs):
     return freqs, psd
 \end{lstlisting}
 
-\subsection*{Procedura klasyfikacji}
+\subsection*{Procedura klasyfikacji i stabilizacja decyzji}
 
-Klasyfikacja polega na wyznaczeniu stosunku sygnału do szumu (SNR) dla każdej docelowej częstotliwości. Maksymalna wartość PSD jest szukana w paśmie $\pm 0.5$~Hz wokół częstotliwości bodźca. Bodziec, dla którego obliczony wskaźnik SNR jest najwyższy, zostaje uznany za intencję użytkownika. Wynik ten jest następnie wykorzystywany do wykonania akcji (ruch kursora lub kliknięcie). Kluczowy fragment logiki klasyfikatora przedstawia listing \ref{alg:klasyk}.
+Klasyfikacja polega na wyznaczeniu stosunku sygnału do szumu (SNR) dla każdej docelowej częstotliwości na podstawie uśrednionego widma PSD.
+Maksymalna wartość sygnału jest szukana w wąskim paśmie $\pm 0.5$~Hz wokół częstotliwości bodźca, natomiast poziom tła (szumu) estymowany jest z sąsiedztwa tej częstotliwości.
+Kluczowy fragment logiki klasyfikatora przedstawia listing \ref{alg:klasyk}.
 
 \begin{lstlisting}[language=Python, caption=Fragment algorytmu klasyfikatora opartego na SNR, label=alg:klasyk]
 import numpy as np
@@ -130,3 +135,35 @@ def classify_snr(x, fs, freqs_targets):
     scores = {f: compute_snr(freqs, psd, f) for f in freqs_targets}
     return max(scores, key=scores.get), scores
 \end{lstlisting}
+
+Samo wyznaczenie częstotliwości z najwyższym SNR nie jest wystarczające do stabilnego sterowania, ponieważ sygnał EEG jest z natury zaszumiony.
+W systemie zaimplementowano dodatkowy bufor decyzyjny (ang. \textit{debounce logic}).
+System uznaje intencję użytkownika tylko wtedy, gdy ta sama częstotliwość zostanie zaklasyfikowana jako zwycięska (z SNR powyżej progu) przez zadaną liczbę kolejnych okien czasowych (w implementacji przyjęto parametr \texttt{REQUIRED\_STABILITY = 3}).
+Dopiero spełnienie tego warunku powoduje wysłanie komendy do modułu sterującego myszą.
+
+\section{Interfejs użytkownika i wygląd stymulatora}
+
+Kluczowym elementem interakcji z użytkownikiem jest moduł stymulujący, zrealizowany przy użyciu biblioteki PyQt5.
+Został on zaimplementowany w formie nakładki programowej (ang. \textit{overlay}) - bezramkowego, przezroczystego okna, działającego zawsze na wierzchu (flaga \texttt{WindowStaysOnTopHint}) i ignorującego bezpośrednie wejście użytkownika (kliknięcia).
+
+Dzięki zastosowaniu biblioteki Qt, rysowanie pól odbywa się wewnątrz zdarzenia \texttt{paintEvent}, co pozwala na wysoką wydajność renderowania.
+Wygląd nakładki przedstawiono na rysunku \ref{fig:ssvep_stym}. Zdecydowano się na wariant pięciu niezależnych migających pól: cztery pola odpowiadają za sterowanie kierunkowe, natomiast piąte pełni funkcję symulacji kliknięcia.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{ssvep_stym.PNG}
+    \caption{Zrzut ekranu przedstawiający stymulator. Kolor jednego z pól (aktywnego) został zmieniony na czerwony.}
+    \label{fig:ssvep_stym}
+\end{figure}
+
+Logika migotania oparta jest na liczniku klatek: widoczność prostokąta jest przełączana, gdy numer klatki osiągnie wartość odpowiadającą półokresowi danej częstotliwości.
+
+Aplikacja umożliwia również szerokie dostosowanie wyglądu stymulatora. Na rysunku \ref{fig:ssvep_options} pokazano okno konfiguracyjne, które pozwala na edycję parametrów takich jak położenie, kolor, rozmiar oraz przezroczystość pól.
+Opcje te są zapisywane w pliku konfiguracyjnym, co pozwala na szybkie przywrócenie preferencji użytkownika przy kolejnym uruchomieniu.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{opcje_ssvep.PNG}
+    \caption{Okno konfiguracji parametrów wizualnych pól stymulatora.}
+    \label{fig:ssvep_options}
+\end{figure}

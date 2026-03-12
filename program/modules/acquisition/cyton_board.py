@@ -1,17 +1,18 @@
 import time
+import queue
+import traceback
 import numpy as np
 from collections import deque
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
-from brainflow.data_filter import DataFilter, FilterTypes, DetrendOperations
+from brainflow.board_shim import BoardShim, BrainFlowInputParams
 
-from config import SERIAL_PORT, BOARD_ID, SAMPLING_RATE, WINDOW_DURATION, ACTIVE_CHANNELS, STIMULI_MAP
-from modules.processing import compute_psd, classify_snr 
-from modules.processing.signal_utils import filter_signal, compute_fft
-from utils.mouse_controller import MouseController
+from config import (SERIAL_PORT, BOARD_ID, SAMPLING_RATE,
+                    WINDOW_DURATION, ACTIVE_CHANNELS, STIMULI_MAP)
+from modules.processing.signal_utils import filter_signal, compute_fft, compute_psd
 from modules.processing.classifier import compute_snr
+from utils.mouse_controller import MouseController
 
 # --- KONFIGURACJA FILTRÓW DECYZYJNYCH ---
-THRESHOLD = 2.2        # Próg SNR (dostosuj na podstawie DEBUG)
+THRESHOLD = 2.2        # Próg SNR 
 REQUIRED_STABILITY = 3   # Liczba powtórzeń dla stabilizacji
 # ----------------------------------------
 
@@ -29,6 +30,15 @@ def run_bci_loop(cmd_queue, fft_queue=None):
         n_samples = int(SAMPLING_RATE * WINDOW_DURATION)
         target_freqs = list(STIMULI_MAP.keys())
         buffer = deque(maxlen=REQUIRED_STABILITY)
+        
+        eeg_channels = BoardShim.get_eeg_channels(BOARD_ID)
+        indices = [ch - 1 for ch in ACTIVE_CHANNELS]
+
+        if max(indices) >= len(eeg_channels):
+            raise ValueError(
+                f"ACTIVE_CHANNELS {ACTIVE_CHANNELS} poza zakresem. "
+                f"Dostępne kanały EEG: {len(eeg_channels)}"
+            )
     
         while True:
             time.sleep(0.1)
@@ -36,67 +46,64 @@ def run_bci_loop(cmd_queue, fft_queue=None):
             if data.shape[1] < n_samples: 
                 continue
 
-            # 1. Pobranie kanałów EEG
-            eeg_channels = BoardShim.get_eeg_channels(BOARD_ID)
+            # Pobranie kanałów EEG
             raw_eeg = data[eeg_channels]
 
-            # 2. Wybór kanałów potylicznych zdefiniowanych w config.py
-            indices = [ch - 1 for ch in ACTIVE_CHANNELS]
+            # Wybór kanałów potylicznych 
             occipital_data = raw_eeg[indices, :]
+
+            # Filtracja
+            filtered_channels = [filter_signal(ch, SAMPLING_RATE) for ch in occipital_data]
             
-            # 3. Obliczanie FFT dla każdego kanału
+            
+            # FFT i PSD
+            all_psds = []
             all_ffts = []
             freqs = None
+            
+            for f_data in filtered_channels:
+                f, psd = compute_psd(f_data, SAMPLING_RATE)
+                _, fft_amp = compute_fft(f_data, SAMPLING_RATE)
+                all_psds.append(psd)
+                all_ffts.append(fft_amp)
+                freqs = f
 
-            for ch_data in occipital_data:
-                # Filtracja (Bandpass + Notch) zgodnie z signal_utils.py
-                f_data = filter_signal(ch_data, SAMPLING_RATE)
-                
-                # Obliczenie FFT dla danego kanału
-                current_freqs, current_fft = compute_fft(f_data, SAMPLING_RATE)
-                
-                all_ffts.append(current_fft)
-                freqs = current_freqs
-
-            # Sumowanie amplitud z kanałów (uśrednianie)
+            avg_psd = np.mean(all_psds, axis=0)
             avg_fft = np.mean(all_ffts, axis=0)
 
-            # Wysłanie danych FFT + raw EEG do wizualizacji (jeśli kolejka istnieje)
             if fft_queue is not None:
                 try:
-                    # Wysyłamy: (freqs, psd, lista raw EEG dla każdego kanału)
-                    fft_queue.put((freqs, avg_fft, [filter_signal(ch, SAMPLING_RATE) for ch in occipital_data]), block=False)
-                except:
-                    pass  # Kolejka pełna, pomiń tę ramkę
+                    fft_queue.put(
+                        (freqs, avg_fft, filtered_channels, avg_psd),
+                        block=False
+                    )
+                except queue.Full:
+                    pass
 
-            # 4. Klasyfikacja SNR
             
-            scores = {}
-            for f in target_freqs:
-                scores[f] = compute_snr(freqs, avg_fft, f)
-            
+
+            # Klasyfikacja SNR na PSD
+            scores = {f: compute_snr(freqs, avg_psd, f) for f in target_freqs}
             detected_f = max(scores, key=scores.get)
             current_snr = scores[detected_f]
 
             # Logowanie dla celów diagnostycznych
             print(f"DEBUG: Max Freq: {detected_f}Hz | SNR: {current_snr:.2f} | Buffer: {list(buffer)}")
 
-            # 5. Logika decyzyjna
-            if current_snr > THRESHOLD:
-                buffer.append(detected_f)
-            else:
-                buffer.append(None)
+            # Bufor decyzyjny
+            buffer.append(detected_f if current_snr > THRESHOLD else None)
 
-            if len(buffer) == REQUIRED_STABILITY and all(x == buffer[0] and x is not None for x in buffer):
+            if (len(buffer) == REQUIRED_STABILITY and
+                    all(x == buffer[0] and x is not None for x in buffer)):
                 command = STIMULI_MAP[buffer[0]]
-                print(f" >>> WYKRYTO: {command} (SNR: {current_snr:.2f})")
-                
+                print(f">>> WYKRYTO: {command} (SNR: {current_snr:.2f})")
                 mouse.execute(command)
                 cmd_queue.put(command)
-                buffer.clear() 
+                buffer.clear()
 
     except Exception as e:
-        print(f"Błąd: {e}")
+        print(f"Błąd krytyczny: {e}")
+        traceback.print_exc()
     finally:
         if board.is_prepared():
             board.stop_stream()

@@ -1,13 +1,5 @@
 import sys
-import numpy as np
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QVBoxLayout
-from PyQt5.QtCore import Qt, QTimer
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-from config import SAMPLING_RATE, STIMULI_MAP, ACTIVE_CHANNELS
-
-
-import sys
+import queue
 import numpy as np
 from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QVBoxLayout
 from PyQt5.QtCore import Qt, QTimer
@@ -49,11 +41,10 @@ class FFTWindow(QMainWindow):
         try:
             while True:
                 data = self.data_queue.get_nowait()
-                # Oczekujemy teraz 4 elementów w krotce: freqs, fft, raw_eeg, psd
                 self.freqs, self.fft, self.raw_eeg_channels, self.psd = data
-                n_samples = self.raw_eeg_channels[0].shape[0] if len(self.raw_eeg_channels) > 0 else 1000
+                n_samples = self.raw_eeg_channels[0].shape[0]
                 self.time_axis = np.arange(n_samples) / SAMPLING_RATE
-        except:
+        except queue.Empty:
             pass
 
         if self.freqs is None or self.fft is None or self.psd is None:
