@@ -2,12 +2,13 @@ import sys
 from multiprocessing import Process, Queue
 
 from modules.stimulation import run_overlay
-from modules.acquisition import run_bci_loop
+from modules.acquisition.cyton_board import run_bci_loop
 from modules.visualization.fft_graph import run_fft_window
 
 def main():
     # 1. Kolejka komunikacyjna (BCI -> System)
     cmd_queue = Queue()
+    fft_queue = Queue(maxsize=5)
 
     # 2. Definicja procesów
     # Proces A: Moduł stymulujący (GUI)
@@ -20,13 +21,13 @@ def main():
     # Proces B: Moduł rejestracji i przetwarzania 
     acquisition_process = Process(
         target=run_bci_loop, 
-        args=(cmd_queue,), 
+        args=(cmd_queue, fft_queue), 
         name="Acquisition_Processing_Module"
     )
     
     graph_process = Process(
         target=run_fft_window, 
-        args=(cmd_queue,), 
+        args=(fft_queue,), 
         name="FFT_Window_Module"
     )
 
@@ -44,11 +45,10 @@ def main():
     except KeyboardInterrupt:
         print("\nPrzerwano ręcznie...")
     finally:
-        # 4. Sprzątanie
-        if acquisition_process.is_alive():
-            acquisition_process.terminate()
-        if stimulation_process.is_alive():
-            stimulation_process.terminate()
+        for proc in [acquisition_process, stimulation_process, graph_process]:
+            if proc.is_alive():
+                proc.terminate()
+                proc.join(timeout=3)
         print("System wyłączony.")
 
 if __name__ == "__main__":

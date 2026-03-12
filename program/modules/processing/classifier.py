@@ -1,19 +1,30 @@
 import numpy as np
-from .signal_utils import compute_psd
+from .signal_utils import filter_signal, compute_fft, compute_psd
 
 # Algorytm 3.3: Klasyfikator SNR 
-def compute_snr(freqs, psd, fb, bw=1.0):
-    # Szukamy sygnału w paśmie +/- 0.5 Hz
-    mask_sig = (freqs >= fb - 0.5) & (freqs <= fb + 0.5)
+def compute_snr(freqs, psd, fb, bw=1.0, n_harmonics=2):
+    """
+    SNR z uwzględnieniem harmonicznych 2*fb, 3*fb itd.
+    Zwiększa czułość detekcji SSVEP.
+    """
+    sig_total = 0.0
+    noise_total = 0.0
     
-    # Szum to otoczenie +/- bw, z wyłączeniem sygnału
-    mask_noise = (freqs >= fb - bw) & (freqs <= fb + bw) & (~mask_sig)
+    for h in range(1, n_harmonics + 1):
+        f = fb * h
+        if f > freqs[-1]:   # harmoniczna poza zakresem
+            break
+            
+        mask_sig = (freqs >= f - 0.5) & (freqs <= f + 0.5)
+        mask_noise = (freqs >= f - bw) & (freqs <= f + bw) & (~mask_sig)
+        
+        if mask_sig.any() and mask_noise.any():
+            sig_total += np.mean(psd[mask_sig])
+            noise_total += np.mean(psd[mask_noise])
     
-    sig = np.mean(psd[mask_sig])
-    noise = np.mean(psd[mask_noise])
-    
-    if noise == 0: return 0
-    return sig / noise
+    if noise_total == 0:
+        return 0.0
+    return sig_total / noise_total
 
 def classify_snr(x, fs, freqs_targets):
     """
