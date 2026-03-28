@@ -1,12 +1,30 @@
 import numpy as np
 from functools import lru_cache
-from scipy.signal import butter, lfilter, iirnotch
+from mne.filter import filter_data
+from scipy.signal import iirnotch, lfilter
 
+def filter_signal(data: np.ndarray, fs: int) -> np.ndarray:
+    """
+    Filtracja zero-phase (bez przesunięcia fazowego):
+    1. Bandpass 1–40 Hz (FIR, metoda 'fir')
+    2. Notch 50 Hz
+    data: (n_samples,)
+    """
+    # MNE oczekuje (n_channels, n_samples) — dodajemy wymiar
+    x = data[np.newaxis, :]
 
-@lru_cache(maxsize=4)
-def _butter_coeffs(fs):
-    nyq = 0.5 * fs
-    return butter(4, [1.0 / nyq, 40.0 / nyq], btype='band')
+    x = filter_data(
+        x, sfreq=fs,
+        l_freq=1.0, h_freq=40.0,
+        method='fir',
+        fir_window='hamming',
+        verbose=False
+    )
+    
+    b_n, a_n = _notch_coeffs(fs)
+    x = lfilter(b_n, a_n, x)
+    return x[0]  # z powrotem (n_samples,)
+
 
 @lru_cache(maxsize=4)
 def _notch_coeffs(fs):
@@ -15,13 +33,6 @@ def _notch_coeffs(fs):
 @lru_cache(maxsize=4)
 def _hanning(N):
     return np.hanning(N)
-
-
-def filter_signal(data, fs):
-    b, a = _butter_coeffs(fs)
-    y = lfilter(b, a, data)
-    b_n, a_n = _notch_coeffs(fs)
-    return lfilter(b_n, a_n, y)
 
 
 def compute_fft(x, fs):
@@ -33,8 +44,11 @@ def compute_fft(x, fs):
 
 
 def compute_psd(x, fs):
-    freqs, amp = compute_fft(x, fs)
-    delta_f = freqs[1] - freqs[0]
-    psd = (amp ** 2) / delta_f
-    psd[1:-1] *= 2
+    from scipy.signal import welch
+    freqs, psd = welch(
+        x, fs=fs,
+        nperseg=fs * 2,      # okno 2s
+        noverlap=fs,         # 50% overlap
+        window='hann'
+    )
     return freqs, psd
