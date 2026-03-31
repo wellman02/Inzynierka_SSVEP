@@ -1,7 +1,5 @@
 import time
-import queue
 import traceback
-import numpy as np
 from collections import deque
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
 
@@ -12,7 +10,7 @@ from modules.processing.classifier import classify
 from utils.mouse_controller import MouseController
 
 REQUIRED_STABILITY = 3
-COOLDOWN_SECONDS = 2.0
+COOLDOWN_SECONDS = 0.5
 
 def run_bci_loop(cmd_queue):
     params = BrainFlowInputParams()
@@ -27,7 +25,6 @@ def run_bci_loop(cmd_queue):
 
         n_samples = int(SAMPLING_RATE * WINDOW_DURATION)
         target_freqs = list(STIMULI_MAP.keys())
-        buffer = deque(maxlen=REQUIRED_STABILITY)
         
         eeg_channels = BoardShim.get_eeg_channels(BOARD_ID)
         indices = [ch - 1 for ch in ACTIVE_CHANNELS]
@@ -38,6 +35,8 @@ def run_bci_loop(cmd_queue):
         consecutive = 0
         last_detected = None
         active_threshold = THRESHOLD_CCA if CLASSIFIER_METHOD == "CCA" else THRESHOLD_SNR
+    
+        last_command_time = 0.0
     
         while True:
             time.sleep(0.1)
@@ -53,7 +52,7 @@ def run_bci_loop(cmd_queue):
             )
 
             # Logowanie
-            print(f"DEBUG: Max Freq: {detected_f}Hz | Wynik: {current_score:.2f} | Próg: {active_threshold}")
+            # print(f"DEBUG: Max Freq: {detected_f}Hz | Wynik: {current_score:.2f} | Próg: {active_threshold}")
 
             # Logika stabilności i komend
             if current_score > active_threshold:
@@ -67,10 +66,13 @@ def run_bci_loop(cmd_queue):
                 last_detected = None
 
             if consecutive >= REQUIRED_STABILITY:
-                command = STIMULI_MAP[last_detected]
-                print(f">>> WYKRYTO: {command} (Wynik: {current_score:.2f})")
-                mouse.execute(command)
-                cmd_queue.put(command)
+                if time.time() - last_command_time >= COOLDOWN_SECONDS:
+                    command = STIMULI_MAP[last_detected]
+                    print(f">>> WYKRYTO: {command} (Wynik: {current_score:.2f})")
+                    mouse.execute(command)
+                    cmd_queue.put(command)
+                    last_command_time = time.time()
+                
                 consecutive = 0
                 last_detected = None
 

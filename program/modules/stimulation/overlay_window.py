@@ -1,4 +1,5 @@
 import sys
+import time
 from PyQt5.QtWidgets import QApplication, QDesktopWidget, QOpenGLWidget
 from PyQt5.QtCore import Qt, QTimer, QRect, QPoint
 from PyQt5.QtGui import QPainter, QColor, QSurfaceFormat, QCursor
@@ -21,6 +22,8 @@ class OverlayWindow(QOpenGLWidget):
     def __init__(self, cmd_queue):
         super().__init__()
         self.frame_counter = 0
+        
+        
         
         # Wykrywamy rzeczywiste odświeżanie monitora (np. 180Hz)
         self.monitor_fps = self.get_refresh_rate()
@@ -50,10 +53,26 @@ class OverlayWindow(QOpenGLWidget):
         p.setColor(self.backgroundRole(), Qt.black)
         self.setPalette(p)
 
+        # --- KONFIGURACJA TESTU CZASU REAKCJI ---
+        # Definicja 3 czerwonych kwadratów (x, y, szerokość, wysokość)
+        # Rozmiary: duży (100x100), średni (60x60), mały (30x30)
+        # Rozmieszczone w sposób uniemożliwiający nakładanie się na główne bodźce
+        self.test_squares = [
+            QRect(int(self.width * 0.25), int(self.height * 0.25), 100, 100),  # Duży
+            QRect(int(self.width * 0.75 - 30), int(self.height * 0.75), 60, 60),    # Średni
+            QRect(int(self.width * 0.5 - 15), int(self.height * 0.75 - 15), 30, 30)     # Mały
+        ]
+        self.test_clicked = [False, False, False]
+        self.test_start_time = time.time()
+        self.test_total_time = None
+        # ----------------------------------------
+
         self.showFullScreen()
         
         # --- USTAWIENIE KURSORA NA ŚRODKU ---
         self.center_cursor()
+
+        
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update)
@@ -86,6 +105,21 @@ class OverlayWindow(QOpenGLWidget):
         return [Stimulus(name, rect, freq_by_cmd.get(name, 0), monitor_fps=self.monitor_fps) 
                 for name, rect in pos.items()]
 
+    def mousePressEvent(self, event):
+        # --- OBSŁUGA KLIKNIĘCIA DLA TESTU REAKCJI ---
+        if event.button() == Qt.LeftButton and self.test_total_time is None:
+            click_pos = event.pos()
+            for i, sq in enumerate(self.test_squares):
+                # Jeśli kwadrat nie był kliknięty i kliknięcie jest w jego obszarze
+                if not self.test_clicked[i] and sq.contains(click_pos):
+                    self.test_clicked[i] = True
+            
+            # Sprawdzenie, czy wszystkie zostały kliknięte
+            if all(self.test_clicked) and self.test_total_time is None:
+                self.test_total_time = time.time() - self.test_start_time
+                print(f"\n--- TEST ZAKOŃCZONY ---")
+                print(f"Czas wykonania zadania: {self.test_total_time:.3f} s\n")
+
     def paintEvent(self, event):
         self.frame_counter += 1
         
@@ -98,6 +132,10 @@ class OverlayWindow(QOpenGLWidget):
                 # Logika podziału klatek (Square Wave)
                 if (self.frame_counter % stim.frames_per_cycle) < (stim.frames_per_cycle / 2):
                     qp.fillRect(stim.rect, stim.color)
+                    
+        for i, sq in enumerate(self.test_squares):
+            if not self.test_clicked[i]:
+                qp.fillRect(sq, Qt.red)
 
 def run_overlay(cmd_queue):
     app = QApplication(sys.argv)

@@ -29,7 +29,6 @@ def main():
 
         # Czekaj na zamknięcie okna GUI (główny wątek tu zostanie)
         stimulation_process.join()
-
     except KeyboardInterrupt:
         print("\nPrzerwano ręcznie...")
     finally:
