@@ -2,10 +2,8 @@ import time
 import traceback
 from collections import deque
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
-
 from config import (SERIAL_PORT, BOARD_ID, SAMPLING_RATE, WINDOW_DURATION, 
-                    ACTIVE_CHANNELS, STIMULI_MAP, CLASSIFIER_METHOD, 
-                    THRESHOLD_SNR, THRESHOLD_CCA)
+                    ACTIVE_CHANNELS, STIMULI_MAP, THRESHOLD_CCA)
 from modules.processing.classifier import classify
 from utils.mouse_controller import MouseController
 
@@ -21,7 +19,7 @@ def run_bci_loop(cmd_queue):
     try:
         board.prepare_session()
         board.start_stream()
-        print(f"--- BCI START (Metoda: {CLASSIFIER_METHOD}) ---")
+        print(f"--- BCI START ---")
 
         n_samples = int(SAMPLING_RATE * WINDOW_DURATION)
         target_freqs = list(STIMULI_MAP.keys())
@@ -34,8 +32,7 @@ def run_bci_loop(cmd_queue):
     
         consecutive = 0
         last_detected = None
-        active_threshold = THRESHOLD_CCA if CLASSIFIER_METHOD == "CCA" else THRESHOLD_SNR
-    
+        active_threshold = THRESHOLD_CCA 
         last_command_time = 0.0
     
         while True:
@@ -47,9 +44,7 @@ def run_bci_loop(cmd_queue):
             # Pobranie danych potylicznych
             occipital_data = data[eeg_channels][indices, :]
 
-            detected_f, current_score, scores, freqs, avg_fft, avg_psd, filtered_channels = classify(
-                occipital_data, SAMPLING_RATE, target_freqs, method=CLASSIFIER_METHOD
-            )
+            detected_f, current_score = classify(occipital_data, SAMPLING_RATE, target_freqs)
 
             # Logowanie
             # print(f"DEBUG: Max Freq: {detected_f}Hz | Wynik: {current_score:.2f} | Próg: {active_threshold}")

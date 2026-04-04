@@ -30,25 +30,3 @@ def filter_signal(data: np.ndarray, fs: int) -> np.ndarray:
 def _notch_coeffs(fs):
     return iirnotch(50.0, 30.0, fs)
 
-@lru_cache(maxsize=4)
-def _hanning(N):
-    return np.hanning(N)
-
-
-def compute_fft(x, fs):
-    N = len(x)
-    w = _hanning(N)
-    amp = np.abs(np.fft.rfft(x * w)) / (np.sum(w) / 2)
-    freqs = np.fft.rfftfreq(N, 1.0 / fs)
-    return freqs, amp
-
-
-def compute_psd(x, fs):
-    from scipy.signal import welch
-    freqs, psd = welch(
-        x, fs=fs,
-        nperseg=fs * 2,      # okno 2s
-        noverlap=fs,         # 50% overlap
-        window='hann'
-    )
-    return freqs, psd
