@@ -1,137 +1,3 @@
-% %----------------------------------------------------------------------------------------
-% %   CHAPTER 3
-% %----------------------------------------------------------------------------------------
-
-% \chapter{Projekt oraz implementacja interfejsu SSVEP}
-
-% W niniejszym rozdziale przedstawiono główne założenia projektowe oraz ogólną koncepcję implementacji systemu interfejsu mózg-komputer opartego na zjawisku wzrokowych potencjałów wywołanych stanu ustalonego.
-% Celem projektu jest opracowanie rozwiązania umożliwiającego sterowanie kursorem myszy za pomocą odpowiedzi neuronalnych generowanych w odpowiedzi na migoczące bodźce wzrokowe.
-% Konstrukcja systemu musi zapewniać nie tylko funkcjonalność pozwalającą na wykonywanie podstawowych komend ruchu kursora, ale również powtarzalność wyników.
-% Z tego względu nacisk położono na równowagę pomiędzy prostotą konfiguracji a jakością akwizycji sygnału EEG.
-
-% \section{Założenia projektowe}
-
-% Zdefiniowano dwie grupy wymagań: funkcjonalne, określające możliwości systemu, oraz pozafunkcjonalne, dotyczące jakości i warunków pracy rozwiązania.
-
-% \subsection*{Założenia funkcjonalne systemu} 
-
-% \begin{itemize}
-%     \item System umożliwia sterowanie kursorem w czterech kierunkach oraz generowanie kliknięcia.
-%     \item Użytkownik wybiera komendę poprzez skupienie wzroku na jednym z pięciu migających bodźców.
-%     \item System dokonuje analizy sygnału w oknach czasowych o stałej długości.
-% \end{itemize}
-
-% \subsection*{Założenia pozafunkcjonalne systemu} 
-
-% \begin{itemize}
-%     \item System oparty jest na architekturze wieloprocesowej w celu uniknięcia blokowania renderowania interfejsu przez zachodzące w tle obliczenia.
-%     \item Stabilność działania systemu nie zależy od wahań jakości łącza Bluetooth.
-%     \item Moduł przetwarzania sygnału musi być odporny na zakłócenia sieci energetycznej (50 Hz).
-%     \item Aplikacja działa w sposób deterministyczny, zapewniając synchronizację częstotliwości stymulatora z częstotliwością odświeżania monitora.
-%     \item System działa w czasie rzeczywistym z opóźnieniem akceptowalnym dla użytkownika.
-
-% \end{itemize}
-
-% \section{Model systemu}
-
-% Ogólna architektura rozwiązania opiera się na interakcji trzech głównych modułów: modułu stymulującego, modułu rejestracji sygnału oraz modułu przetwarzającego.
-% Schemat ogólny modelu systemu, obrazujący przepływ informacji między użytkownikiem a poszczególnymi blokami, przedstawiono na rysunku \ref{fig:model_systemu}.
-
-% Moduł stymulujący odpowiada za prezentację bodźców wzrokowych (migających pól), które wywołują specyficzną odpowiedź w mózgu użytkownika.
-% Moduł rejestracji odpowiada za akwizycję biologicznego sygnału EEG. Zarejestrowane dane trafiają do modułu przetwarzającego, gdzie następuje ich filtracja, analiza widmowa oraz klasyfikacja, której wynik jest przekładany na akcję sterującą (ruch kursora).
-
-% Ze względu na zjawisko globalnej blokady interpretera (GIL) w języku Python, system został zaprojektowany z wykorzystaniem biblioteki \texttt{multiprocessing}. Zaimplementowano dwa niezależne procesy: pierwszy odpowiada za moduł stymulujący (renderowanie interfejsu graficznego \textit{overlay}), a drugi za moduł rejestracji i przetwarzania sygnału EEG. Komunikacja między nimi odbywa się w sposób asynchroniczny za pomocą bezpiecznej kolejki wymiany danych (\textit{Queue}). Taki podział gwarantuje, że obciążające procesor operacje obliczeniowe nie wpływają na wyświetlanie bodźców na ekranie.
-
-% \begin{figure}[!ht]
-%     \centering
-%     \includegraphics[width=0.6\textwidth]{diagram_moj.jpg}
-%     \caption{Model systemu interfejsu SSVEP z podziałem na moduły logiczne.}
-%     \label{fig:model_systemu}
-% \end{figure}
-
-% \section{Zestaw technologii i proces rejestracji sygnału}
-
-% Do rejestracji sygnału EEG zdecydowano się zastosować moduł OpenBCI Cyton \cite{openbci}, przedstawiony na rysunku \ref{fig:cyton}. Urządzenie to oparte jest na 8-kanałowym wzmacniaczu Texas Instruments ADS1299, 24-bitowym przetworniku analogowo-cyfrowym oraz 8-bitowym mikroprocesorze PIC32MX250F128B firmy Microchip Technology. Komunikacja z jednostką centralną odbywa się bezprzewodowo przy użyciu dedykowanego odbiornika USB.
-
-% \begin{figure}[!ht]
-%     \centering
-%     \includegraphics[width=0.5\textwidth]{Cyton.jpg}
-%     \caption{Urządzenie OpenBCI Cyton wykorzystane w eksperymencie. Źródło: \cite{openbci}}
-%     \label{fig:cyton}
-% \end{figure}
-
-% Dane poddawane analizie pochodzą z trzech elektrod zlokalizowanych w punktach O1, O2 i Oz (kora wzrokowa) układu 10-20. Wybór ten podyktowany jest fizjologią zjawiska SSVEP, które jest najsilniej rejestrowane w płacie potylicznym.
-
-% Głównym elementem implementacji procesu akwizycji jest wykorzystanie biblioteki \textbf{BrainFlow} umożliwiającej komunikację płytki z komputerem. W przeciwieństwie do klasycznego podejścia analizującego rozłączne, statyczne bloki danych, w systemie zastosowano mechanizm przesuwnego okna czasowego (ang. \textit{sliding window}).
-
-
-% Proces akwizycji przebiega następująco:
-% \begin{enumerate}
-%     \item Nawiązanie połączenia z urządzeniem i rozpoczęcie strumieniowania danych do wewnętrznego bufora.
-%     \item W pętli głównej, co 100 milisekund pobierana jest paczka danych stanowiąca okno o długości 4 sekund.
-%     \item Nakładające się na siebie okna są przekazywane do modułu przetwarzania.
-% \end{enumerate}
-% Dzięki takiej konfiguracji system jest w stanie znacznie szybciej zareagować na zmianę intencji użytkownika.
-
-
-% Surowy sygnał odebrany z elektrod potylicznych (O1, O2 i Oz) poddawany jest wstępnemu oczyszczeniu przed przekazaniem go do klasyfikatora. W pierwszej kolejności sygnał z każdego kanału przechodzi przez filtr pasmowo-przepustowy, który ogranicza analizowane dane do zakresu od 1 do 40 Hz. Krok ten pozwala na skuteczne wyeliminowanie wolnych dryftów sygnału oraz szumów wysokoczęstotliwościowych. Następnie na dane nakładany jest filtr notch, którego zadaniem jest punktowe wycięcie zakłóceń pochodzących bezpośrednio z sieci elektrycznej o częstotliwości 50 Hz. Filtracja realizowana jest przy użyciu filtrów FIR z oknem Hanninga, które charakteryzują się liniową charakterystyką fazową, minimalizując zniekształcenia fazowe sygnału. Tak oczyszczone dane, pozostając w postaci przebiegów czasowych, trafiają do dalszej analizy.
-
-% Jako docelową i jedyną metodę klasyfikacji intencji użytkownika wykorzystano \textbf{Analizę Korelacji Kanonicznej (CCA)}. Jest to metoda statystyczna poszukująca liniowych zależności między dwoma zbiorami zmiennych, niewymagająca uprzedniego treningu modelu na danych użytkownika. W procesie detekcji przefiltrowane sygnały EEG porównywane są ze sztucznie wygenerowanymi sygnałami referencyjnymi. Sygnały te składają się z funkcji sinus i cosinus stworzonych dla każdej docelowej częstotliwości stymulacji oraz zdefiniowanej liczby jej harmonicznych. Algorytm w pętli oblicza współczynnik korelacji kanonicznej dla każdej dostępnej komendy. Bodziec, dla którego system zwróci najwyższą korelację, identyfikowany jest jako aktualny cel skupienia wzroku użytkownika.
-
-% Implementację procesu klasyfikacyjnego w języku Python z użyciem biblioteki \texttt{scikit-learn} przedstawiono na listingu \ref{alg:cca}.
-
-% \begin{lstlisting}[language=Python, caption=Funkcje generujące sygnały referencyjne oraz obliczające współczynnik CCA, label=alg:cca]
-% def generate_references(freq, fs, n_samples, n_harmonics=2):
-%     t = np.arange(n_samples) / fs
-%     Y = []
-%     for h in range(1, n_harmonics + 1):
-%         Y.append(np.sin(2 * np.pi * freq * h * t))
-%         Y.append(np.cos(2 * np.pi * freq * h * t))
-%     return np.array(Y).T
-
-% def compute_cca(eeg_data, fs, target_freqs, n_harmonics=2):
-%     n_samples = eeg_data.shape[1]
-%     X = eeg_data.T 
-%     scores = {}
-%     cca = CCA(n_components=1)
-    
-%     for freq in target_freqs:
-%         Y = generate_references(freq, fs, n_samples, n_harmonics)
-%         cca.fit(X, Y)
-%         X_c, Y_c = cca.transform(X, Y)
-%         corr = np.corrcoef(X_c[:, 0], Y_c[:, 0])[0, 1]
-%         scores[freq] = corr
-        
-%     return scores
-% \end{lstlisting}
-
-
-% Moduł stymulujący, odpowiedzialny za prezentację bodźców, został zrealizowany przy użyciu biblioteki PyQt5 w formie pełnoekranowego okna. W celu wywołania jak najsilniejszej odpowiedzi SSVEP zrezygnowano z dodatkowych elementów graficznych, opierając interfejs na maksymalnym kontraście białych kwadratów wyświetlanych na całkowicie czarnym tle. Kluczowym rozwiązaniem inżynieryjnym w tej warstwie jest sam mechanizm generowania migotania. Konwencjonalne podejście oparte na oprogramowaniu i zegarach systemowych zostało odrzucone ze względu na ich podatność na opóźnienia oraz fluktuacje wynikające z planowania wątków przez system operacyjny. Zamiast tego, proces stymulacji zsynchronizowano bezpośrednio z cyklem odświeżania monitora (mechanizm VSync). Aplikacja po uruchomieniu pobiera natywną częstotliwość odświeżania ekranu, a następnie dla każdego bodźca wylicza dokładną liczbę klatek obrazu przypadającą na jeden pełny cykl migotania o zadanej częstotliwości. Zmiana stanu widoczności stymulatora realizowana jest poprzez prostokątną modulację luminancji, gdzie wewnętrzny licznik klatek w sprzętowo przyspieszanej pętli renderowania decyduje o na przemian wyświetlaniu i ukrywaniu białego kwadratu. Taka sprzętowa synchronizacja zapewnia deterministyczny czas prezentacji bodźców oraz ścisłą stabilność fazową, skutecznie eliminując zjawisko gubienia klatek (ang. frame drop), co stanowi absolutny fundament dla prawidłowego działania i wysokiej dokładności klasyfikatora opartego na analizie korelacji kanonicznej.
-
-
-
-
-
-
-% Aplikacja generuje idealnie czarne tło wypełniające całą przestrzeń roboczą ekranu, na którym renderowanych jest pięć czysto białych, kwadratowych bodźców migających (Rysunek \ref{fig:ssvep_stym}). Ich położenie na ekranie w sposób naturalny odwzorowuje kierunki wywoływanych akcji sterujących kursorem myszy (lewo, prawo, góra, dół oraz kliknięcie na środku).
-
-% \begin{figure}[!ht]
-%     \centering
-%     \includegraphics[width=0.8\textwidth]{ssvep_stym.PNG} 
-%     \caption{Wygląd ekranu stymulującego z wykorzystaniem białych bodźców o wysokim kontraście.}
-%     \label{fig:ssvep_stym}
-% \end{figure}
-
-% Kluczowym osiągnięciem inżynieryjnym w warstwie wizualnej jest uniezależnienie działania stymulatora od systemowych zegarów czasu rzeczywistego, które bywają obarczone fluktuacjami i opóźnieniami systemowymi. Migotanie bodźców zsynchronizowano bezpośrednio z cyklem odświeżania monitora (ang. \textit{VSync}). System dynamicznie pobiera natywną częstotliwość odświeżania ekranu (np. 60 Hz), a następnie wylicza dokładną liczbę klatek wymaganą do wygenerowania pełnego cyklu dla określonych częstotliwości docelowych ($6.66$ Hz, $7.5$ Hz, $8.57$ Hz, $10.0$ Hz, $12.0$ Hz). Przełączanie stanu widoczności każdego z kwadratów zachodzi w pętli renderowania sprzętowego \texttt{paintEvent}, co minimalizuje zjawisko gubienia klatek.
-
-% W ramach aplikacji stymulatora wdrożono również zintegrowany moduł do weryfikacji czasu reakcji układu, badający opóźnienie pomiędzy pojawieniem się bodźca, a fizycznym kliknięciem ekranu z wykorzystaniem statycznych obiektów testowych.
-
-
-
-
-
-
-
 %----------------------------------------------------------------------------------------
 %   CHAPTER 3
 %----------------------------------------------------------------------------------------
@@ -140,7 +6,7 @@
 
 W niniejszym rozdziale przedstawiono główne założenia projektowe oraz ogólną koncepcję implementacji systemu interfejsu mózg-komputer opartego na zjawisku wzrokowych potencjałów wywołanych stanu ustalonego.
 Celem projektu jest opracowanie rozwiązania umożliwiającego sterowanie kursorem myszy za pomocą odpowiedzi neuronalnych generowanych w odpowiedzi na migoczące bodźce wzrokowe.
-Konstrukcja systemu musi zapewniać nie tylko funkcjonalność pozwalającą na wykonywanie podstawowych komend ruchu kursora, ale również powtarzalność wyników.
+Konstrukcja systemu musi zapewniać nie tylko funkcjonalność, pozwalającą na wykonywanie podstawowych komend ruchu kursora, ale również powtarzalność wyników.
 
 \section{Założenia projektowe}
 
@@ -151,8 +17,8 @@ Zdefiniowano dwie grupy wymagań: funkcjonalne, określające możliwości syste
 \begin{itemize}
     \item System umożliwia sterowanie kursorem w czterech kierunkach oraz generowanie kliknięcia lewym przyciskiem myszy.
     \item Użytkownik wybiera komendę poprzez skupienie wzroku na jednym z pięciu migających bodźców.
-    \item System dokonuje analizy sygnału w oknach czasowych o stałej długości wynoszącą 4 sekundy, z krokiem przesunięcia 2 sekundy.
-    \item Interfejs pozwala na konfigurację parametrów migających pól (położenie, częstotliwość, rozmiar).
+    \item System dokonuje analizy sygnału w oknach czasowych o stałej długości wynoszącej 4 sekundy, z krokiem przesunięcia 100 milisekund.
+    \item Interfejs pozwala na konfigurację parametrów migających pól (położenie, częstotliwość, rozmiar, przezroczystość).
 \end{itemize}
 
 \subsection*{Założenia pozafunkcjonalne systemu}
@@ -162,7 +28,7 @@ Zdefiniowano dwie grupy wymagań: funkcjonalne, określające możliwości syste
     \item Stabilność działania systemu nie zależy od wahań jakości łącza Bluetooth (zastosowanie buforowania danych).
     \item Moduł przetwarzania sygnału musi być odporny na zakłócenia sieci energetycznej o częstotliwości 50~Hz.
     \item Aplikacja działa w sposób deterministyczny, zapewniając synchronizację częstotliwości stymulatora z częstotliwością odświeżania monitora poprzez mechanizm VSync.
-    \item Łączne opóźnienie systemu - od momentu skupienia wzroku do wykonania komendy - nie przekracza 5 sekund, co odpowiada wymaganiom stawianym interfejsom BCI użytkowanym w czasie rzeczywistym \cite{wolpaw2002}.
+    \item Łączne opóźnienie systemu, od momentu skupienia wzroku do wykonania komendy - nie przekracza 5 sekund, co odpowiada wymaganiom stawianym interfejsom BCI użytkowanym w czasie rzeczywistym \cite{wolpaw2002}.
 \end{itemize}
 
 \section{Model systemu}
@@ -171,10 +37,10 @@ Ogólna architektura rozwiązania opiera się na interakcji trzech głównych mo
 Schemat ogólny modelu systemu, obrazujący przepływ informacji między użytkownikiem a poszczególnymi blokami, przedstawiono na rysunku~\ref{fig:model_systemu}.
 
 Moduł stymulujący odpowiada za prezentację bodźców wzrokowych migających pól, które wywołują specyficzną odpowiedź w mózgu użytkownika.
-Moduł rejestracji odpowiada za akwizycję biologicznego sygnału EEG.
-Zarejestrowane dane trafiają do modułu przetwarzającego, gdzie następuje ich filtracja, analiza widmowa oraz klasyfikacja, której wynik jest przekładany na ruch kursora.
+Moduł rejestracji jest odpowiedzialny za akwizycję biologicznego sygnału EEG.
+Zarejestrowane dane trafiają do modułu przetwarzającego, gdzie następuje ich filtracja, analiza i klasyfikacja, której wynik jest przekładany na ruch kursora.
 
-Ze względu na zjawisko globalnej blokady interpretera (GIL) w języku Python, system został zaprojektowany z wykorzystaniem biblioteki \texttt{multiprocessing}.
+Ze względu na zjawisko globalnej blokady interpretera (GIL) w języku Python, system został zaprojektowany z wykorzystaniem biblioteki \textit{multiprocessing}.
 Zaimplementowano dwa niezależne procesy: pierwszy odpowiada za moduł stymulujący (renderowanie interfejsu graficznego \textit{overlay}) oraz drugi za moduł rejestracji i przetwarzania sygnału EEG.
 
 Komunikacja między procesami akwizycji i stymulacji odbywa się asynchronicznie za pomocą kolejki komend (\texttt{cmd\_queue}). Taki podział gwarantuje, że obciążające procesor operacje obliczeniowe nie wpływają na stabilność wyświetlania bodźców na ekranie.
@@ -201,19 +67,19 @@ Komunikacja z jednostką centralną odbywa się bezprzewodowo przy użyciu dedyk
 
 Dane poddawane analizie pochodzą z trzech elektrod zlokalizowanych w punktach O1, O2 i Oz (kora wzrokowa) zgodnie z systemem 10-20. Wybór tych miejsc wynika z faktu, że siła odpowiedzi mózgu na migające bodźce jest najsilniejsza w jego potylicznej części.
 
-Głównym elementem implementacji procesu akwizycji jest biblioteka \textbf{BrainFlow}, zapewniająca jednolite API do komunikacji z płytką Cyton.
-W przeciwieństwie do klasycznego podejścia analizującego rozłączne, statyczne bloki danych, w systemie zastosowano mechanizm przesuwnego okna czasowego.
+Głównym elementem implementacji procesu akwizycji jest biblioteka \textit{BrainFlow}, zapewniająca jednolite API do komunikacji z płytką Cyton.
+W przeciwieństwie do klasycznego podejścia analizującego rozłączne, statyczne bloki danych, w systemie zastosowano mechanizm przesuwnego okna czasowego (ang.~\textit{sliding window}).
 
 Proces akwizycji przebiega następująco:
 \begin{enumerate}
-    \item Nawiązanie połączenia z urządzeniem poprzez port szeregowy i rozpoczęcie strumieniowania danych do wewnętrznego bufora.
-    \item Po upływie 2-sekundowego okresu stabilizacji sygnału, uruchomienie pętli głównej.
-    \item Co 100 milisekund pobierana jest paczka danych stanowiąca okno o długości 4 sekund (1000 próbek przy częstotliwości próbkowania 250~Hz).
-    \item Nakładające się okna - przesunięte względem siebie o 2 sekundy - są przekazywane do modułu przetwarzania.
+    \item Nawiązanie połączenia z urządzeniem poprzez port szeregowy i rozpoczęcie strumieniowania danych do wewnętrznego bufora przy częstotliwości próbkowania 250~Hz.
+    \item Po upływie okresu stabilizacji sygnału, uruchomienie pętli głównej.
+    \item Co 100 milisekund pobierana jest paczka danych stanowiąca okno o długości 4 sekund (1000 próbek).
+    \item Nakładające się okna, przesunięte względem siebie zaledwie o 100 milisekund, są przekazywane do modułu przetwarzania.
 \end{enumerate}
 
-Zastosowanie okna o długości 4 sekund stanowi kompromis między rozdzielczością częstotliwościową a czasem reakcji systemu.
-Dłuższe okno zapewnia lepszą rozdzielczość (0,25~Hz przy 4~s), natomiast krok przesunięcia równy połowie okna umożliwia częstszą aktualizację wyniku klasyfikacji, skracając czas odpowiedzi systemu.
+Zastosowanie okna o długości 4 sekund stanowi optymalny kompromis między stabilnością sygnału dla klasyfikatora a czasem reakcji systemu.
+Długie okno dostarcza wiarygodnych danych, natomiast bardzo krótki krok przesunięcia (100 ms) umożliwia płynną i błyskawiczną aktualizację wyniku klasyfikacji.
 
 \section{Implementacja przetwarzania i klasyfikacji sygnału}
 
@@ -225,35 +91,38 @@ Własność ta jest szczególnie istotna dla metody CCA, która opiera się na p
 Przetwarzanie obejmuje dwa etapy:
 \begin{enumerate}
     \item \textbf{Filtr pasmowo-przepustowy} o zakresie 1--40~Hz, eliminujący wolne dryfty sygnału (poniżej 1~Hz) oraz szumy wysokoczęstotliwościowe związane z napięciem mięśniowym (powyżej 40~Hz).
-    \item \textbf{Filtr zaporowy (notch)} o częstotliwości 50~Hz usuwający zakłócenia pochodzące z sieci elektrycznej. 
+    \item \textbf{Filtr zaporowy (notch)} o częstotliwości 50~Hz usuwający zakłócenia pochodzące z sieci elektrycznej.
 \end{enumerate}
 
+Tak przygotowane przebiegi czasowe trafiają bezpośrednio do algorytmu analizującego. Funkcję realizującą opisaną filtrację pasmowo-przepustową oraz zaporową przedstawiono na listingu~\ref{alg:filter}. Wpływ filtracji na sygnał EEG oraz wynikające z niej widmo częstotliwościowe z wyraźnymi prążkami odpowiedzi SSVEP zilustrowano na rysunku~\ref{fig:ssvep_fft}.
 
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.85\textwidth]{ssvep_fft.jpg}
+    \caption{Przykład sygnału SSVEP użytkownika patrzącego na bodziec 
+    migający z częstotliwością 10~Hz: EEG w dziedzinie czasu~(a); 
+    EEG po filtracji w dziedzinie czasu~(b); EEG w dziedzinie 
+    częstotliwości z widocznymi prążkami na 10~Hz i harmonicznej 
+    20~Hz~(c). Źródło:~\cite{apicella2022}.}
+    \label{fig:ssvep_fft}
+\end{figure}
+
+
+
+\subsection*{Wybór częstotliwości stymulacji}
 
 Dobór częstotliwości bodźców wizualnych jest ograniczony przez częstotliwość odświeżania monitora LCD (60~Hz).
 Wyświetlacz może generować bodźce jedynie o częstotliwościach będących całkowitymi dzielnikami tej wartości.
-Spośród dostępnych wartości (30,0; 20,0; 15,0; 12,0; 10,0; 8,57; 7,5; 6,66~Hz) wykluczono ponadto te, które stanowią wzajemne wielokrotności - co zapobiega nakładaniu się harmonicznych różnych bodźców w widmie EEG.
+Spośród dostępnych wartości wykluczono te, które stanowią wzajemne wielokrotności. Zapobiega to nakładaniu się harmonicznych różnych bodźców w widmie EEG.
 Na tej podstawie wybrano pięć częstotliwości: 6,66~Hz, 7,5~Hz, 8,57~Hz, 10,0~Hz i 12,0~Hz, odpowiadające kolejno komendom: góra, dół, lewo, prawo i kliknięcie.
 
 \subsection*{Klasyfikacja metodą CCA}
 
-Jako metodę klasyfikacji intencji użytkownika zastosowano \textbf{Analizę Korelacji Kanonicznej} (CCA). W procesie detekcji przefiltrowane wielokanałowe sygnały EEG porównywane są ze sztucznie wygenerowanymi sygnałami referencyjnymi. Dla każdej docelowej częstotliwości stymulacji $f_k$ generowana jest macierz referencji:
-
-\begin{equation}
-    \mathbf{Y}_{f_k} =
-    \begin{bmatrix}
-        \sin(2\pi f_k t) \\
-        \cos(2\pi f_k t) \\
-        \sin(2\pi \cdot 2f_k t) \\
-        \cos(2\pi \cdot 2f_k t)
-    \end{bmatrix}^{\!\top}
-    \label{eq:cca_ref}
-\end{equation}
-
-\noindent gdzie $t = [0, 1/f_s, 2/f_s, \ldots, (N-1)/f_s]$ jest wektorem czasu, a $f_s = 250$~Hz oznacza częstotliwość próbkowania.
-
+Jako docelową metodę klasyfikacji intencji użytkownika zastosowano analizę korelacji kanonicznej (ang.~\textit{Canonical Correlation Analysis}, CCA).
+W procesie detekcji przefiltrowane wielokanałowe sygnały EEG porównywane są ze sztucznie wygenerowanymi sygnałami referencyjnymi.
+Dla każdej docelowej częstotliwości stymulacji $f_k$ generowana jest macierz referencji.
 Macierz uwzględnia dwie harmoniczne ($h = 1, 2$), ponieważ odpowiedź SSVEP w korze wzrokowej pojawia się nie tylko na częstotliwości podstawowej bodźca $f_k$, lecz również na jej wielokrotnościach $2f_k$, $3f_k$ itd.~\cite{vialatte2010}.
-Uwzględnienie harmonicznych zwiększa czułość klasyfikatora, zwłaszcza przy krótkich oknach czasowych.
+Uwzględnienie harmonicznych znacząco zwiększa czułość klasyfikatora.
 
 Algorytm CCA wyznacza wektory kanoniczne $\mathbf{w}_x$ i $\mathbf{w}_y$ takie, że korelacja między rzutami $\mathbf{X}\mathbf{w}_x$ i $\mathbf{Y}\mathbf{w}_y$ jest maksymalna.
 Uzyskany współczynnik korelacji kanonicznej $\rho_{f_k}$ przyjmuje wartości z przedziału $[0, 1]$.
@@ -264,12 +133,111 @@ Częstotliwość bodźca identyfikowana jako aktualny cel skupienia wzroku użyt
     \label{eq:cca_argmax}
 \end{equation}
 
-Implementację klasyfikatora w języku Python przedstawiono na listingu~\ref{alg:cca}.
+Implementację w języku Python z użyciem biblioteki \textit{scikit-learn} przedstawiono na listingu~\ref{alg:cca}.
+
+
+
+\subsection*{Bufor decyzyjny}
+
+Samo wyznaczenie częstotliwości o najwyższej korelacji kanonicznej nie jest wystarczające do stabilnego sterowania, ponieważ sygnał EEG jest z natury zaszumiony i pełen artefaktów.
+W systemie zaimplementowano mechanizm bufora decyzyjnego, który wygładza wynik klasyfikacji w czasie.
+
+Komenda sterująca jest generowana wyłącznie wtedy, gdy ta sama częstotliwość zostanie zaklasyfikowana jako dominująca w $N = 3$ kolejnych, następujących bezpośrednio po sobie oknach czasowych, a obliczony współczynnik korelacji $\rho$ przekroczy ustalony próg $\theta = 0{,}3$.
+Jakiekolwiek okno niespełniające warunków progowych lub wskazujące inną częstotliwość powoduje pełny reset licznika.
+Po wysłaniu komendy system wchodzi w blokadę czasową wynoszącą 0,5 sekundy, uniemożliwiającą wielokrotne rejestrowanie tej samej komendy podczas jednego skupienia wzroku. Działanie mechanizmu okna przesuwnego oraz logiki bufora decyzyjnego przedstawiono na listingu~\ref{alg:debounce}.
+
+
+
+Ponieważ okno analizy przesuwane jest co 100 ms ($T_{\text{krok}} = 0{,}1$~s), łączne minimalne opóźnienie systemu, od momentu skupienia wzroku na bodźcu do wykonania pierwszej komendy wynosi:
+
+\begin{equation}
+    t_{\min} = T_{\text{okno}} + (N-1) \cdot T_{\text{krok}} = 4{,}0 + 2 \cdot 0{,}1 = 4{,}2 \; \text{s}
+    \label{eq:delay}
+\end{equation}
+
+\section{Interfejs użytkownika i wygląd stymulatora}
+
+Moduł stymulujący, odpowiedzialny za prezentację bodźców, został zrealizowany przy użyciu biblioteki \textit{PyQt5} w formie pełnoekranowego okna nakładkowego (ang.~\textit{overlay}).
+W celu wywołania jak najsilniejszej odpowiedzi SSVEP użyto białe kwadraty wyświetlane na czarnym tle. Ich położenie na ekranie odwzorowuje kierunki wywoływanych akcji sterujących kursorem myszy: górny bodziec odpowiada komendzie ruchu w górę, dolny - ruchowi w dół, lewy i prawy - odpowiednim ruchom horyzontalnym, natomiast centralny - kliknięciu lewym przyciskiem myszy.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{ssvep_stym.PNG}
+    \caption{Wygląd ekranu stymulującego z bodźcami o wysokim kontraście.}
+    \label{fig:ssvep_stym}
+\end{figure}
+
+\subsection*{Zasada migotania bodźców i sprzętowe renderowanie klatek}
+
+Aby zapewnić precyzyjną stymulację SSVEP, zjawisko migotania zostało zaimplementowane w oparciu o sprzętowe zliczanie klatek obrazu, co stanowi znacznie stabilniejszą metodę niż użycie tradycyjnych programowych timerów.
+
+Dla każdego bodźca wyliczana jest liczba klatek monitora przypadająca na jeden pełny cykl migotania, zgodnie ze wzorem:
+
+\begin{equation}
+    N_{\text{cykl}} = \frac{f_{\text{monitor}}}{f_{\text{bodziec}}}
+    \label{eq:frames_per_cycle}
+\end{equation}
+
+\noindent Przykładowo, dla monitora o częstotliwości odświeżania $f_{\text{monitor}} = 60$~Hz i bodźca docelowego $f_{\text{bodziec}} = 7{,}5$~Hz, pełny cykl trwa dokładnie $N_{\text{cykl}} = 8$ klatek. Generowany w ten sposób sygnał świetlny ma charakter fali prostokątnej o wypełnieniu 50\%. Oznacza to, że przez pierwszą połowę cyklu bodziec jest renderowany na ekranie (stan wysoki), a przez drugą połowę pozostaje ukryty (stan niski). 
+
+Samo rysowanie bodźców hermetyzowano wewnątrz przeciążonej metody \texttt{paintEvent}, dostarczanej przez framework \textit{PyQt5}. Wywoływana jest ona automatycznie przez główny wątek graficzny przy każdym odświeżeniu ekranu z użyciem mechanizmu VSync. W jej wnętrzu inkrementowany jest globalny licznik klatek (\texttt{frame\_counter}), a stan widoczności stymulatorów określany jest warunkowo przy użyciu operacji modulo. Implementację tego mechanizmu przedstawiono na listingu~\ref{alg:paintevent}.
+
+
+
+
+\begin{lstlisting}[language=Python, caption=Funkcja realizująca filtrację pasmowo-przepustową oraz zaporową, label=alg:filter]
+def filter_signal(data: np.ndarray, fs: int) -> np.ndarray:
+    x = data[np.newaxis, :]  # Biblioteka MNE wymaga wymiaru (n_channels, n_samples)
+
+    x = filter_data(
+        x, sfreq=fs,
+        l_freq=1.0, h_freq=40.0,
+        method='fir',
+        fir_window='hamming',
+        verbose=False
+    )
+    
+    b_n, a_n = iirnotch(50.0, 30.0, fs)
+    x = lfilter(b_n, a_n, x)
+    
+    return x[0]
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption=Pętla główna modułu akwizycji realizująca mechanizm okna przesuwnego oraz bufor decyzyjny, label=alg:debounce]
+while True:
+    time.sleep(0.1) # Krok przesunięcia okna: 100 ms
+    
+    # Pobranie paczki danych z bufora płytki Cyton
+    data = board.get_current_board_data(n_samples)
+    if data.shape[1] < n_samples: 
+        continue
+
+    occipital_data = data[eeg_channels][indices, :]
+    detected_f, current_score = classify(occipital_data, SAMPLING_RATE, target_freqs)
+
+    # Logika bufora decyzyjnego (Debounce logic)
+    if current_score > THRESHOLD_CCA:
+        if detected_f == last_detected:
+            consecutive += 1
+        else:
+            consecutive = 1
+            last_detected = detected_f
+    else:
+        consecutive = 0
+        last_detected = None
+
+    # Wykonanie komendy po N spójnych odczytach
+    if consecutive >= REQUIRED_STABILITY:
+        if time.time() - last_command_time >= COOLDOWN_SECONDS:
+            command = STIMULI_MAP[last_detected]
+            mouse.execute(command)
+            last_command_time = time.time()
+            
+        consecutive = 0
+        last_detected = None
+\end{lstlisting}
 
 \begin{lstlisting}[language=Python, caption=Funkcje generujące sygnały referencyjne oraz obliczające współczynnik korelacji kanonicznej CCA, label=alg:cca]
-import numpy as np
-from sklearn.cross_decomposition import CCA
-
 def generate_references(freq, fs, n_samples, n_harmonics=2):
     t = np.arange(n_samples) / fs
     Y = []
@@ -292,39 +260,19 @@ def compute_cca(eeg_data, fs, target_freqs, n_harmonics=2):
     return scores
 \end{lstlisting}
 
-\subsection*{Bufor decyzyjny}
 
-Samo wyznaczenie częstotliwości o najwyższej korelacji kanonicznej nie jest wystarczające do stabilnego sterowania, ponieważ sygnał EEG jest z natury zaszumiony oraz pełen artefaktów.
-W systemie zaimplementowano mechanizm bufora decyzyjnego, który wygładza wynik klasyfikacji w czasie.
-
-Komenda sterująca jest generowana wyłącznie wtedy, gdy ta sama częstotliwość zostanie zaklasyfikowana jako dominująca w $N = 3$ kolejnych, następujących bezpośrednio po sobie oknach czasowych, a obliczony współczynnik korelacji $\rho$ przekroczy ustalony próg $\theta = 0{,}3$.
-Jakiekolwiek okno niespełniające warunków progowych lub wskazujące inną częstotliwość powoduje reset licznika. Po wysłaniu komendy system wchodzi w sekundowy okres blokady, uniemożliwiający wielokrotne rejestrowanie tej samej komendy podczas jednego skupienia wzroku. Łączne minimalne opóźnienie systemu od momentu skupienia wzroku do wykonania komendy wynosi zatem:
-
-\begin{equation}
-    t_{\min} = T_{\text{okno}} + (N-1) \cdot T_{\text{krok}} = 4{,}0 + 2 \cdot 0{,}1 = 4{,}2 \; \text{s}
-    \label{eq:delay}
-\end{equation}
-
-\section{Interfejs użytkownika i wygląd stymulatora}
-
-Moduł stymulujący, odpowiedzialny za prezentację bodźców, został zrealizowany przy użyciu biblioteki PyQt5 w formie pełnoekranowego okna nakładkowego (ang.~\textit{overlay}).
-W celu wywołania jak najsilniejszej odpowiedzi SSVEP zastosowano maksymalny kontrast - białe kwadraty wyświetlane na całkowicie czarnym tle - rezygnując z dodatkowych elementów graficznych.
-
-Kluczowym rozwiązaniem inżynieryjnym jest mechanizm generowania migotania.
-Konwencjonalne podejście oparte na zegarach systemowych zostało odrzucone ze względu na podatność na opóźnienia wynikające z planowania wątków przez system operacyjny.
-Migotanie bodźców zsynchronizowano bezpośrednio z cyklem odświeżania monitora dzięki mechanizmowi VSync.
-
-Aplikacja dynamicznie pobiera natywną częstotliwość odświeżania ekranu, a następnie dla każdego bodźca wylicza dokładną liczbę klatek obrazu przypadającą na jeden pełny cykl migotania.
-Przełączanie stanu widoczności każdego kwadratu realizowane jest w sprzętowo przyspieszanej pętli renderowania \texttt{paintEvent}. Eliminuje to zjawisko gubienia klatek ważnego dla  poprawnego działania klasyfikatora.
-
-Aplikacja generuje czarne tło wypełniające całą przestrzeń roboczą ekranu, na którym renderowanych jest pięć białych, kwadratowych bodźców migających (rysunek~\ref{fig:ssvep_stym}).
-Ich położenie na ekranie odwzorowuje kierunki wywoływanych akcji sterujących kursorem myszy: górny bodziec odpowiada komendzie ruchu w górę, dolny - ruchowi w dół, lewy i prawy - odpowiednim ruchom horyzontalnym, natomiast centralny - kliknięciu lewym przyciskiem myszy.
-
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=0.8\textwidth]{ssvep_stym.PNG}
-    \caption{Wygląd ekranu stymulującego z białymi bodźcami o wysokim kontraście na czarnym tle.}
-    \label{fig:ssvep_stym}
-\end{figure}
-
-W ramach aplikacji stymulatora zaimplementowano również moduł weryfikacji czasu reakcji układu, badający opóźnienie między pojawieniem się bodźca a fizycznym kliknięciem ekranu z wykorzystaniem statycznych obiektów testowych.
+\begin{lstlisting}[language=Python, caption=Fragment metody \texttt{paintEvent} realizujący sprzętowe migotanie bodźców w postaci fali prostokątnej, label=alg:paintevent]
+def paintEvent(self, event):
+    self.frame_counter += 1
+    qp = QPainter(self)
+    
+    # Wypełnienie tła na czarno w każdej klatce
+    qp.fillRect(self.rect(), Qt.black)
+    
+    # Rysowanie aktywnych stymulatorów
+    for stim in self.stimuli:
+        if stim.freq > 0:
+            # Logika modulacji prostokątnej (Square Wave)
+            if (self.frame_counter % stim.frames_per_cycle) < (stim.frames_per_cycle / 2):
+                qp.fillRect(stim.rect, stim.color)
+\end{lstlisting}

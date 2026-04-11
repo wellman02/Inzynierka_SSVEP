@@ -44,10 +44,10 @@ def run_bci_loop(cmd_queue):
             # Pobranie danych potylicznych
             occipital_data = data[eeg_channels][indices, :]
 
-            detected_f, current_score = classify(occipital_data, SAMPLING_RATE, target_freqs)
+            detected_f, current_score, _, _, _ = classify(occipital_data, SAMPLING_RATE, target_freqs)
 
             # Logowanie
-            # print(f"DEBUG: Max Freq: {detected_f}Hz | Wynik: {current_score:.2f} | Próg: {active_threshold}")
+            print(f"DEBUG: Max Freq: {detected_f}Hz | Wynik: {current_score:.2f} | Próg: {active_threshold}")
 
             # Logika stabilności i komend
             if current_score > active_threshold:

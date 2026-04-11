@@ -7,13 +7,13 @@
 
 \section{Wzrokowe potencjały wywołane stanu ustalonego (SSVEP)}
 
-Wzrokowe potencjały wywołane stymulacją o stałej częstotliwości (ang. \textit{Steady-State Visual Evoked Potentials}, SSVEP) są jednym z najbardziej rozpowszechnionych i skutecznych zjawisk wykorzystywanych w systemach BCI \cite{nicolas2011, pfurtscheller1999, guger2000}. Zjawisko to opiera się na obserwacji bodźców wizualnych migających z określoną częstotliwością. Kiedy użytkownik skupia wzrok na danym bodźcu, w obszarze kory wzrokowej — głównie w okolicach potylicznych — pojawia się rytmiczna aktywność o tej samej częstotliwości, co częstotliwość migotania bodźca, oraz jej wielokrotności \cite{wolpaw2002, friman2007, vialatte2010}. Odpowiedź tę łatwo wykryć w zapisie EEG; cechuje się wysoką powtarzalnością między osobami badanymi. Fizjologiczną podstawą powstawania potencjałów SSVEP jest rezonansowa odpowiedź neuronów kory wzrokowej na rytmiczną stymulację \cite{norcia2015, regan1989, herrmann2001, pfurtscheller1999}.
+Wzrokowe potencjały wywołane stymulacją o stałej częstotliwości (ang. \textit{Steady-State Visual Evoked Potentials}, SSVEP) są jednym z najbardziej rozpowszechnionych i skutecznych zjawisk wykorzystywanych w systemach BCI \cite{vialatte2010, nakanishi2018}. Zjawisko to opiera się na obserwacji bodźców wizualnych migających z określoną częstotliwością. Kiedy użytkownik skupia wzrok na danym bodźcu, w obszarze kory wzrokowej — głównie w okolicach potylicznych — pojawia się rytmiczna aktywność o tej samej częstotliwości, co częstotliwość migotania bodźca, oraz jej wielokrotności \cite{wolpaw2002, friman2007}. Odpowiedź tę łatwo wykryć w zapisie EEG; cechuje się wysoką powtarzalnością między osobami badanymi. Fizjologiczną podstawą powstawania potencjałów SSVEP jest rezonansowa odpowiedź neuronów kory wzrokowej na rytmiczną stymulację \cite{norcia2015, regan1989}.
 
 W typowych systemach BCI opartych na SSVEP stosuje się kilka lub kilkanaście bodźców wizualnych, z których każdy migocze z inną częstotliwością \cite{muller2008, bin2009}. Użytkownik dokonuje wyboru, skupiając wzrok na wybranym bodźcu, a system analizuje zapis EEG, identyfikując dominującą częstotliwość sygnału. Dużą zaletą SSVEP jest stosunkowo wysoki stosunek sygnału do szumu (SNR) oraz niewielkie wymagania treningowe — użytkownik nie musi opanowywać skomplikowanych strategii mentalnych, jak w przypadku potencjałów ruchowych. Systemy oparte na SSVEP osiągają bardzo wysoką dokładność klasyfikacji (nawet powyżej 95\%) i krótki czas reakcji \cite{nakanishi2018}. Należy jednak zauważyć, że metody SSVEP mają również ograniczenia. Wymagają stałej stymulacji wizualnej, co przy dłuższym użytkowaniu może prowadzić do zmęczenia wzroku lub dyskomfortu. Ponadto skuteczność systemu zależy od indywidualnych różnic w czułości na bodźce migające — nie u wszystkich użytkowników uzyskuje się równie silne odpowiedzi \cite{vialatte2010, friman2007}.
 
 \section{Struktura interfejsu SSVEP}
 
-Interfejs SSVEP składa się z kilku współpracujących modułów, które wspólnie umożliwiają detekcję i interpretację odpowiedzi wzrokowej użytkownika \cite{regan1989, norcia2015}. Pierwszym z nich jest moduł stymulatora, odpowiedzialny za generowanie bodźców wizualnych o określonej częstotliwości i właściwościach fizycznych, takich jak barwa, jasność i kontrast \cite{wang2020, jia2010}. Kolejnym elementem jest system akwizycji EEG, obejmujący elektrody, wzmacniacze oraz wstępne filtry, które umożliwiają rejestrację sygnałów elektrycznych generowanych przez korę wzrokową \cite{pfurtscheller1999, guger2000}. Zarejestrowany sygnał trafia następnie do modułu przetwarzania i analizy, w którym stosuje się techniki takie jak szybka transformata Fouriera (FFT), analiza korelacji kanonicznej (CCA) oraz analiza korelacji kanonicznej z zastosowaniem banków filtrów (FBCCA), w celu wyodrębnienia komponentów częstotliwościowych odpowiadających konkretnym bodźcom \cite{bin2009, chen2015, nakanishi2018}. Wyniki analizy interpretuje moduł klasyfikacji, który identyfikuje bodziec będący obiektem uwagi użytkownika i przekazuje odpowiednią komendę do systemu sterowania lub interfejsu użytkownika \cite{gao2014, nakanishi2015}. Całość działania wspiera interfejs wizualny lub sterujący, reagujący na wybór użytkownika w czasie rzeczywistym, umożliwiając np. wybór liter, sterowanie obiektami w środowisku wirtualnym lub kontrolę urządzeń zewnętrznych \cite{kosmyna2018, cheng2020}. Funkcjonalny model takiego rozwiązania przedstawiono na rysunku \ref{fig:ssvep_schemat}.
+Interfejs SSVEP składa się z kilku współpracujących modułów, które wspólnie umożliwiają detekcję i interpretację odpowiedzi wzrokowej użytkownika \cite{norcia2015}. Pierwszym z nich jest moduł stymulatora, odpowiedzialny za generowanie bodźców wizualnych o określonej częstotliwości i właściwościach fizycznych, takich jak barwa, jasność i kontrast \cite{wang2020, jia2010}. Kolejnym elementem jest system akwizycji EEG, obejmujący elektrody, wzmacniacze oraz wstępne filtry, które umożliwiają rejestrację sygnałów elektrycznych generowanych przez korę wzrokową \cite{wolpaw2002}. Zarejestrowany sygnał trafia następnie do modułu przetwarzania i analizy, w którym stosuje się techniki takie jak szybka transformata Fouriera (FFT), analiza korelacji kanonicznej (CCA) oraz analiza korelacji kanonicznej z zastosowaniem banków filtrów (FBCCA), w celu wyodrębnienia komponentów częstotliwościowych odpowiadających konkretnym bodźcom \cite{bin2009, nakanishi2018}. Wyniki analizy interpretuje moduł klasyfikacji, który identyfikuje bodziec będący obiektem uwagi użytkownika i przekazuje odpowiednią komendę do systemu sterowania lub interfejsu użytkownika \cite{gao2014}. Całość działania wspiera interfejs wizualny lub sterujący, reagujący na wybór użytkownika w czasie rzeczywistym, umożliwiając np. wybór liter, sterowanie obiektami w środowisku wirtualnym lub kontrolę urządzeń zewnętrznych \cite{kosmyna2018, cheng2020}. Funkcjonalny model takiego rozwiązania przedstawiono na rysunku \ref{fig:ssvep_schemat}.
 
 \begin{figure}[!ht]
     \centering
@@ -24,9 +24,9 @@ Interfejs SSVEP składa się z kilku współpracujących modułów, które wspó
 
 \section{Sposoby prezentacji bodźców}
 
-Tradycyjnie bodźce w eksperymentach SSVEP prezentuje się na monitorach komputerowych. Precyzyjna kontrola częstotliwości migotania bodźców jest kluczowa, ponieważ odpowiedź EEG uczestnika jest silnie zsynchronizowana z tą częstotliwością. Niedokładna synchronizacja może prowadzić do zniekształceń sygnału i spadku skuteczności detekcji. Starsze ekrany kineskopowe (CRT) umożliwiały bardzo precyzyjną kontrolę częstotliwości odświeżania, sięgającą nawet 160~Hz, w zależności od rozdzielczości i trybu pracy \cite{lin2015, zhu2010}. Pomimo tej zalety, monitory CRT nie są obecnie praktycznym wyborem ze względu na duże rozmiary, masę oraz wysokie zużycie energii.
+Tradycyjnie bodźce w eksperymentach SSVEP prezentuje się na monitorach komputerowych. Precyzyjna kontrola częstotliwości migotania bodźców jest kluczowa, ponieważ odpowiedź EEG uczestnika jest silnie zsynchronizowana z tą częstotliwością. Niedokładna synchronizacja może prowadzić do zniekształceń sygnału i spadku skuteczności detekcji. Starsze ekrany kineskopowe (CRT) umożliwiały bardzo precyzyjną kontrolę częstotliwości odświeżania, sięgającą nawet 160~Hz, w zależności od rozdzielczości i trybu pracy \cite{zhu2010}. Pomimo tej zalety, monitory CRT nie są obecnie praktycznym wyborem ze względu na duże rozmiary, masę oraz wysokie zużycie energii.
 
-Współczesne monitory LCD osiągają porównywalne lub wyższe częstotliwości odświeżania przy lepszej rozdzielczości i niższym zapotrzebowaniu energetycznym \cite{wu2008, wang2010}. Typowy monitor LCD o częstotliwości odświeżania 60 Hz pozwala generować bodźce o częstotliwościach będących dzielnikami tej wartości, np. w zakresie 10-30~Hz \cite{cecotti2010}. Nowoczesne wyświetlacze z odświeżaniem 120-240~Hz umożliwiają szerszy zakres częstotliwości i gęstsze rozmieszczenie bodźców bez ryzyka nakładania się odpowiedzi SSVEP z różnych źródeł \cite{jia2010, tong2015}. Przykładowy sposób użycia monitora LCD w interfejsie SSVEP zaprezentowano na rysunku \ref{fig:ssvep_setup}. Monitory LCD mają jednak ograniczenia wynikające z fizycznych właściwości wyświetlaczy. Czas reakcji pikseli rzędu kilku milisekund może powodować niewielkie opóźnienia w migotaniu bodźców, a przy dużej liczbie bodźców na ekranie możliwe jest nakładanie się odpowiedzi SSVEP w sygnale EEG. Dlatego w eksperymentach SSVEP nie zaleca się używania ekranów, których czas reakcji zwykle przekracza 5 ms. Synchronizacja prezentacji bodźców z klatkami monitora jest dokładniejsza niż korzystanie z timerów systemowych, które mogą powodować niewielkie wahania czasowe. Badania wykazują, że synchronizacja z odświeżaniem monitora pozwala osiągnąć skuteczność generowania bodźców na poziomie około 90\% \cite{cecotti2010}. Dodatkowo stosowanie metod niesymetrycznych lub przesunięcia fazowego umożliwia generowanie częstotliwości pośrednich, zwiększając liczbę dostępnych komend w interfejsach BCI bez konieczności zmiany sprzętu \cite{jia2010, tong2015}.
+Współczesne monitory LCD osiągają porównywalne lub wyższe częstotliwości odświeżania przy lepszej rozdzielczości i niższym zapotrzebowaniu energetycznym \cite{wu2008, wang2010}. Typowy monitor LCD o częstotliwości odświeżania 60 Hz pozwala generować bodźce o częstotliwościach będących dzielnikami tej wartości, np. w zakresie 10-30~Hz. Nowoczesne wyświetlacze z odświeżaniem 120-240~Hz umożliwiają szerszy zakres częstotliwości i gęstsze rozmieszczenie bodźców bez ryzyka nakładania się odpowiedzi SSVEP z różnych źródeł \cite{jia2010, tong2015}. Przykładowy sposób użycia monitora LCD w interfejsie SSVEP zaprezentowano na rysunku \ref{fig:ssvep_setup}. Monitory LCD mają jednak ograniczenia wynikające z fizycznych właściwości wyświetlaczy. Czas reakcji pikseli rzędu kilku milisekund może powodować niewielkie opóźnienia w migotaniu bodźców, a przy dużej liczbie bodźców na ekranie możliwe jest nakładanie się odpowiedzi SSVEP w sygnale EEG. Dlatego w eksperymentach SSVEP nie zaleca się używania ekranów, których czas reakcji zwykle przekracza 5 ms. Synchronizacja prezentacji bodźców z klatkami monitora jest dokładniejsza niż korzystanie z timerów systemowych, które mogą powodować niewielkie wahania czasowe. Badania wykazują, że synchronizacja z odświeżaniem monitora pozwala osiągnąć skuteczność generowania bodźców na poziomie około 90\%. Dodatkowo stosowanie metod niesymetrycznych lub przesunięcia fazowego umożliwia generowanie częstotliwości pośrednich, zwiększając liczbę dostępnych komend w interfejsach BCI bez konieczności zmiany sprzętu \cite{jia2010, tong2015}.
 
 \begin{figure}[!ht]
     \centering
@@ -41,85 +41,148 @@ Na jakość potencjałów SSVEP wpływają nie tylko rodzaj wyświetlacza, lecz 
 
 \section{Akwizycja sygnałów EEG w interfejsach SSVEP}
 
-Do akwizycji sygnałów EEG niezbędny jest wielokanałowy system rejestracji. Liczba elektrod zależy od przyjętej strategii pomiarowej, jednak w typowych systemach SSVEP zaleca się stosowanie od 8 do 32 kanałów, szczególnie w obszarze potylicznym i ciemieniowym (np. O1, O2, Oz, POz, Pz), gdzie amplituda odpowiedzi SSVEP jest największa \cite{muller2003}. Elektrody mogą być mokre (z żelem przewodzącym) lub suche; elektrody mokre oferują wyższy stosunek sygnału do szumu i lepszy kontakt elektryczny, natomiast elektrody suche umożliwiają szybsze przygotowanie pomiaru i większy komfort użytkownika kosztem nieco niższej jakości sygnału \cite{mullen2015}.
+Do akwizycji sygnałów EEG niezbędny jest wielokanałowy system rejestracji. Liczba elektrod zależy od przyjętej strategii pomiarowej, jednak w typowych systemach SSVEP zaleca się stosowanie od 8 do 32 kanałów, szczególnie w obszarze potylicznym i ciemieniowym (np. O1, O2, Oz, POz, Pz), gdzie amplituda odpowiedzi SSVEP jest największa \cite{nakanishi2018}. Elektrody mogą być mokre (z żelem przewodzącym) lub suche; elektrody mokre oferują wyższy stosunek sygnału do szumu i lepszy kontakt elektryczny, natomiast elektrody suche umożliwiają szybsze przygotowanie pomiaru i większy komfort użytkownika kosztem nieco niższej jakości sygnału \cite{mullen2015}.
 
 Ważnym aspektem jest synchronizacja między systemem stymulacji wizualnej a systemem rejestracji EEG. Bodźce migają z określoną częstotliwością, a precyzyjna synchronizacja gwarantuje, że zarejestrowane sygnały odpowiadają faktycznym momentom prezentacji bodźca. Do synchronizacji wykorzystuje się różne metody, takie jak detekcja sygnału wyjściowego z monitora (np. fotodioda) lub protokoły komunikacyjne o niskim opóźnieniu w przypadku stymulacji VR/AR \cite{nakanishi2018}. Brak dokładnej synchronizacji skutkuje przesunięciami fazowymi i błędną identyfikacją częstotliwości dominujących. Ostatnim etapem jest zapis danych w odpowiednim formacie z uwzględnieniem metadanych: oznaczenia kanałów, częstotliwości próbkowania, momentu rozpoczęcia i zakończenia pomiaru, parametrów filtrów oraz danych kalibracyjnych. Taki zapis umożliwia późniejsze przetwarzanie, analizę harmonicznych i synchronizację z bodźcami.
 
 \section{Metody przetwarzania wykorzystane w interfejsie SSVEP}
 
-Po akwizycji sygnału EEG następuje jego wstępne przetwarzanie, obejmujące filtrowanie pasmowe, usuwanie artefaktów oraz normalizację amplitud. Filtrowanie pasmowe ogranicza sygnał do interesującego zakresu częstotliwości (zwykle 5-50~Hz), redukując zakłócenia niskoczęstotliwościowe oraz szumy wysokoczęstotliwościowe generowane przez mięśnie lub sprzęt \cite{vialatte2010, wang2020}. Artefakty ruchowe i zakłócenia sieciowe mogą być dodatkowo tłumione przy użyciu metod takich jak regresja liniowa lub analiza składowych niezależnych (ICA) \cite{makeig1996}. Tak przygotowany sygnał trafia do modułu ekstrakcji cech, który identyfikuje komponenty częstotliwościowe odpowiadające konkretnym bodźcom wizualnym.
+Po akwizycji sygnału EEG następuje jego wstępne przetwarzanie, obejmujące
+filtrowanie pasmowe oraz usuwanie artefaktów. Filtrowanie pasmowe ogranicza
+sygnał do interesującego zakresu częstotliwości, redukując zakłócenia
+niskoczęstotliwościowe oraz szumy wysokoczęstotliwościowe generowane przez
+mięśnie lub sprzęt \cite{vialatte2010, wang2020}. Artefakty ruchowe
+i zakłócenia sieciowe mogą być dodatkowo tłumione przy użyciu metod takich
+jak regresja liniowa lub analiza składowych niezależnych (ICA)
+\cite{makeig1996}. Tak przygotowany sygnał trafia do modułu ekstrakcji cech,
+który identyfikuje komponenty częstotliwościowe odpowiadające konkretnym
+bodźcom wizualnym.
 
-Przygotowany sygnał EEG dla kanału $c$ można zapisać jako macierz:
+Przygotowany sygnał EEG dla kanału $c$ można zapisać jako:
 
 \[
-X_c[n] = F\big(x_c[n]\big), \quad n = 0,1,\dots,N-1
+    X_c[n] = F\big(x_c[n]\big), \quad n = 0,1,\dots,N-1
 \]
 
-\noindent gdzie $x_c[n]$ to sygnał surowy z kanału $c$, $F$ oznacza operację filtrowania i normalizacji, a $N$ jest liczbą próbek w analizowanym oknie czasowym.
+\noindent gdzie $x_c[n]$ to sygnał surowy z kanału $c$, $F$ oznacza operację
+filtrowania, a $N$ jest liczbą próbek w analizowanym oknie czasowym.
 
-\subsubsection{Analiza w dziedzinie częstotliwości — FFT i PSD}
+\subsubsection{Analiza w dziedzinie częstotliwości — FFT i SNR}
 
-Celem analizy w dziedzinie częstotliwości jest wydobycie informacji o obecności składowych częstotliwościowych odpowiadających bodźcom wzrokowym. W tym celu wykorzystuje się szybką transformację Fouriera (FFT) oraz estymację widmowej gęstości mocy (PSD) \cite{nunez2006, bin2009}.
-
-Dla sygnału czasowego $x[n]$, gdzie $n = 0, 1, \dots, N-1$, dyskretna transformata Fouriera (DFT), będąca podstawą FFT, definiowana jest jako:
-
-\begin{equation}
-X[k] = \sum_{n=0}^{N-1} x[n] \, e^{-j 2 \pi k n / N}, \quad k = 0, 1, \dots, N-1
-\end{equation}
-
-\noindent gdzie:
-\begin{itemize}
-    \item $X[k]$ — zespolona wartość widma odpowiadająca częstotliwości dyskretnej $f_k$,
-    \item $x[n]$ — próbka sygnału w dziedzinie czasu,
-    \item $N$ — liczba próbek w analizowanym oknie,
-    \item $i$ — jednostka urojona, $i^2 = -1$.
-\end{itemize}
-
-Dla sygnałów rzeczywistych, ze względu na symetrię widma, wystarczy analizować tylko lewą połowę widma częstotliwościowego obejmującego prążki, tj. $k = 0, 1, \dots, N/2$. Częstotliwość odpowiadającą indeksowi $k$ oblicza się ze wzoru:
+Najprostszym podejściem do detekcji bodźca SSVEP jest analiza widmowa
+sygnału EEG z pojedynczego kanału. Dyskretna transformata Fouriera (DFT),
+będąca podstawą szybkiej transformaty Fouriera (FFT), definiowana jest jako:
 
 \begin{equation}
-f_k = \frac{k f_s}{N}
+    X[k] = \sum_{n=0}^{N-1} x[n] \, e^{-j 2 \pi k n / N},
+    \quad k = 0, 1, \dots, N-1
 \end{equation}
 
-\noindent gdzie $f_s$ oznacza częstotliwość próbkowania. Dla $f_s = 512\,\mathrm{Hz}$, zastosowanie 512-punktowej FFT pozwala uzyskać rozdzielczość częstotliwościową równą 1~Hz.
+\noindent Dla sygnałów rzeczywistych analizuje się tylko lewą połowę widma,
+tj.\ $k = 0, 1, \dots, N/2$. Częstotliwość odpowiadającą indeksowi $k$
+oblicza się ze wzoru $f_k = k f_s / N$, gdzie $f_s$ oznacza częstotliwość
+próbkowania. Przykładowo, dla $f_s = 250\,\mathrm{Hz}$ i okna $N = 1000$
+próbek rozdzielczość częstotliwościowa wynosi 0{,}25~Hz.
 
-W kontekście systemów SSVEP odpowiedź mózgowa występuje nie tylko na częstotliwości bodźca wzrokowego $f_b$, lecz również na jej harmonicznych ($2f_b, 3f_b, \dots$). Dlatego analizuje się całe pasma skupione wokół częstotliwości podstawowej i jej wielokrotności \cite{muller2008}. Na rysunku \ref{fig:ssvep_fft} przedstawiono przykładowe widmo FFT sygnału EEG z wyraźnymi prążkami odpowiadającymi bodźcu o częstotliwości 10~Hz.
-
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=0.8\textwidth]{ssvep_fft.jpg}
-    \caption{Przykład SSVEP użytkownika patrzącego na bodziec migający z częstotliwością 10~Hz: EEG w dziedzinie czasu (a); EEG po filtracji w dziedzinie czasu (b); EEG w dziedzinie częstotliwości (c). Źródło: \cite{apicella2022}.}
-    \label{fig:ssvep_fft}
-\end{figure}
-
-W praktyce obliczenia przeprowadza się osobno dla sygnału z każdego kanału EEG, wykorzystując przesuwające się okno czasowe długości $N$. Wybór długości okna stanowi kompromis między rozdzielczością częstotliwościową a zdolnością śledzenia zmian czasowych. Dłuższe okna (2-4 s) zapewniają lepszą rozdzielczość częstotliwościową, ale powodują większe opóźnienie odpowiedzi systemu, natomiast krótsze okna (0,5-1 s) pozwalają na szybsze wykrywanie zmian kosztem precyzji \cite{guger2012}. Dla każdego okna wyznacza się PSD, określającą energię sygnału przypadającą na jednostkę szerokości pasma częstotliwości:
+Na podstawie widmowej gęstości mocy (PSD):
 
 \begin{equation}
-\mathrm{PSD}[k] = \frac{1}{N} |X[k]|^2
+    \mathrm{PSD}[k] = \frac{1}{N} |X[k]|^2
 \end{equation}
 
-Wartości $\mathrm{PSD}[k]$ stanowią podstawę dalszej analizy, w której ocenia się, jak silny jest sygnał na częstotliwościach odpowiadających bodźcom wizualnym. Detekcja aktywnego bodźca może opierać się na identyfikacji częstotliwości o najwyższej mocy lub najwyższym stosunku SNR, definiowanym jako:
+\noindent można wyznaczyć stosunek sygnału do szumu (SNR) dla każdej
+częstotliwości bodźca $f_b$:
 
 \begin{equation}
-\mathrm{SNR}(f_b) = \frac{|X[k_b]|^2}{\frac{1}{M} \sum_{m \in \mathcal{N}} |X[m]|^2}
+    \mathrm{SNR}(f_b) =
+    \frac{|X[k_b]|^2}{\dfrac{1}{M} \displaystyle\sum_{m \in \mathcal{N}}
+    |X[m]|^2}
 \end{equation}
 
-\noindent gdzie:
-\begin{itemize}
-    \item $k_b$ — indeks częstotliwości bodźca $f_b$,
-    \item $\mathcal{N}$ — zbiór indeksów sąsiednich prążków reprezentujących tło spektralne,    
-    \item $M$ — liczba prążków w zbiorze $\mathcal{N}$.
-\end{itemize}
+\noindent gdzie $k_b$ jest indeksem odpowiadającym $f_b$, $\mathcal{N}$
+oznacza zbiór sąsiednich prążków tła spektralnego, a $M$ ich liczbę.
+Metoda SNR jest prosta i skuteczna w systemach o ograniczonych zasobach
+obliczeniowych, jednak operuje na sygnale z pojedynczego kanału, przez co
+nie wykorzystuje przestrzennych zależności między elektrodami \cite{bin2009}.
+W odpowiedzi na to ograniczenie opracowano metody wielokanałowe, z których
+najbardziej rozpowszechnioną jest analiza korelacji kanonicznej.
 
-Częstotliwość bodźca o największym $\mathrm{SNR}$ uznaje się za aktualnie obserwowaną w odpowiedzi mózgowej użytkownika. Metoda ta jest prosta, skuteczna i łatwa do implementacji w czasie rzeczywistym, szczególnie w systemach o ograniczonych zasobach obliczeniowych. Jej główną wadą jest ograniczona odporność na zakłócenia oraz brak wykorzystania informacji przestrzennych między kanałami EEG, dlatego często łączy się ją z technikami CCA lub FBCCA, które lepiej wykorzystują zależności międzykanałowe i zwiększają czułość detekcji bodźców.
+\subsubsection{Analiza korelacji kanonicznej (CCA)}
+
+Analiza korelacji kanonicznej (ang.\ \textit{Canonical Correlation Analysis},
+CCA) jest metodą statystyczną pozwalającą na wyznaczenie maksymalnej
+korelacji liniowej między dwoma zestawami zmiennych \cite{lin2006}.
+W kontekście systemów SSVEP pierwszym zestawem jest wielokanałowy sygnał
+EEG $\mathbf{X} \in \mathbb{R}^{N \times C}$ (gdzie $C$ to liczba kanałów,
+a $N$ liczba próbek w oknie), natomiast drugim — macierz sygnałów
+referencyjnych $\mathbf{Y}_{f_k} \in \mathbb{R}^{N \times 2H}$ generowana
+dla każdej częstotliwości bodźca $f_k$ \cite{bin2009, nakanishi2018}.
+
+Dla częstotliwości $f_k$ i $H$ harmonicznych macierz referencji przyjmuje
+postać:
+
+\begin{equation}
+    \mathbf{Y}_{f_k} =
+    \begin{bmatrix}
+        \sin(2\pi f_k t) \\
+        \cos(2\pi f_k t) \\
+        \vdots \\
+        \sin(2\pi H f_k t) \\
+        \cos(2\pi H f_k t)
+    \end{bmatrix}^{\!\top}
+    \label{eq:cca_ref_teoria}
+\end{equation}
+
+\noindent gdzie $t = [0,\, 1/f_s,\, 2/f_s,\, \ldots,\, (N-1)/f_s]$ jest
+wektorem czasu. Uwzględnienie harmonicznych wynika z faktu, że odpowiedź
+SSVEP w korze wzrokowej pojawia się nie tylko na częstotliwości podstawowej
+$f_k$, lecz również na jej wielokrotnościach $2f_k,\, 3f_k,\,\ldots$
+\cite{vialatte2010}. Algorytm CCA wyznacza wektory kanoniczne
+$\mathbf{w}_x$ i $\mathbf{w}_y$ maksymalizujące korelację między rzutami:
+
+\begin{equation}
+    \rho_{f_k} = \max_{\mathbf{w}_x,\,\mathbf{w}_y}
+    \frac{\mathbf{w}_x^{\top} \mathbf{X}^{\top} \mathbf{Y}_{f_k}
+        \mathbf{w}_y}
+        {\sqrt{\mathbf{w}_x^{\top} \mathbf{X}^{\top} \mathbf{X}
+                \mathbf{w}_x \cdot
+                \mathbf{w}_y^{\top} \mathbf{Y}_{f_k}^{\top}
+                \mathbf{Y}_{f_k} \mathbf{w}_y}}
+    \label{eq:cca_max}
+\end{equation}
+
+\noindent Uzyskany współczynnik korelacji kanonicznej
+$\rho_{f_k} \in [0, 1]$ odzwierciedla stopień podobieństwa między sygnałem
+EEG a wzorcem referencyjnym dla częstotliwości $f_k$.
+Częstotliwość bodźca identyfikowana jako aktualny cel skupienia wzroku
+użytkownika wyznaczana jest jako:
+
+\begin{equation}
+    \hat{f} = \arg\max_{f_k \in \mathcal{F}} \, \rho_{f_k}
+    \label{eq:cca_argmax_teoria}
+\end{equation}
+
+\noindent gdzie $\mathcal{F}$ jest zbiorem wszystkich częstotliwości bodźców.
+Kluczową zaletą CCA względem metod jednokanałowych jest jednoczesne
+przetwarzanie sygnałów ze wszystkich elektrod, co pozwala wyznaczyć
+optymalną kombinację liniową kanałów i tym samym zwiększyć odporność
+klasyfikatora na szumy oraz artefakty ograniczone przestrzennie
+\cite{friman2007, bin2009}. Metoda ta nie wymaga danych treningowych, gdyż
+sygnały referencyjne są generowane analitycznie na podstawie znajomości
+częstotliwości bodźców.
+
+
+
 
 \section{Przykładowe interfejsy SSVEP}
 
 Rozwój współczesnych interfejsów SSVEP koncentruje się na redukcji zmęczenia wzrokowego, zwiększeniu komfortu użytkownika oraz integracji z metodami uczenia głębokiego i systemami adaptacyjnymi. Coraz częściej stosuje się także hybrydowe rozwiązania łączące SSVEP z sygnałami EMG lub EOG, umożliwiające bardziej elastyczne sterowanie w złożonych środowiskach interaktywnych.
 
-Jednym z najbardziej znanych interfejsów opartych na SSVEP jest system zaproponowany przez Gao i współpracowników \cite{gao2014}, umożliwiający wybór liter na wirtualnej klawiaturze na podstawie częstotliwości migotania poszczególnych pól. Każdy symbol był stymulowany z inną częstotliwością w zakresie 8-15~Hz, a użytkownik, skupiając wzrok na wybranym polu, generował w korze wzrokowej rytmiczną aktywność o tej samej częstotliwości. Detekcja sygnału realizowana była w czasie rzeczywistym metodą CCA, co pozwalało uzyskać dokładność przekraczającą 95\% przy czasie integracji 1-2~s. Podobne systemy stanowiły punkt odniesienia dla rozwoju bardziej złożonych interfejsów SSVEP. W polskim środowisku naukowym warto wyróżnić rozwiązania opracowane przez zespół prof. Andrzeja Materki z Politechniki Łódzkiej \cite{materka2006alternate, materka2007virtual}. Autorzy zaproponowali system SSVEP wykorzystujący naprzemienną stymulację pól wzrokowych, w której prawa i lewa połowa pola widzenia użytkownika były naprzemiennie pobudzane światłem LED. Takie podejście wzmacniało różnice między sygnałami rejestrowanymi z odpowiednich półkul mózgowych. Dodatkowo zastosowano różnicowy pomiar EEG z elektrod rozmieszczonych symetrycznie nad obszarami potylicznymi (O1, O2), co pozwalało eliminować artefakty symetryczne i poprawiało selektywność pomiaru. Naprzemienna stymulacja pól wzrokowych przyspieszała komunikację między użytkownikiem a systemem, znajdując zastosowanie w praktycznych interfejsach, takich jak wirtualna klawiatura umożliwiająca wybieranie numerów telefonu.  
+Jednym z najbardziej znanych interfejsów opartych na SSVEP jest system zaproponowany przez Gao i współpracowników \cite{gao2014}, umożliwiający wybór liter na wirtualnej klawiaturze na podstawie częstotliwości migotania poszczególnych pól. Każdy symbol był stymulowany z inną częstotliwością w zakresie 8-15~Hz, a użytkownik, skupiając wzrok na wybranym polu, generował w korze wzrokowej rytmiczną aktywność o tej samej częstotliwości. Detekcja sygnału realizowana była w czasie rzeczywistym metodą CCA, co pozwalało uzyskać dokładność przekraczającą 95\% przy czasie integracji 1-2~s. 
 
-Na Uniwersytecie Warszawskim zespół kierowany przez prof. Piotra Durkę opracował interfejs SSVEP z dynamicznie zmieniającym się zestawem bodźców \cite{durka2009open}. System był częścią projektu \textit{OpenBCI} i wykorzystywał adaptacyjne menu, w którym elementy zmieniały pozycję i kształt w zależności od wyników wcześniejszych klasyfikacji. Takie rozwiązanie zmniejszało zmęczenie użytkownika i skracało czas potrzebny na wybór właściwej opcji. Interfejs testowano w warunkach zbliżonych do rzeczywistych, z użyciem lekkiego, przenośnego zestawu EEG oraz standardowego monitora LCD jako źródła bodźców. Badania wykazały, że nawet przy niższej jakości sygnału możliwe było uzyskanie stabilnych odpowiedzi SSVEP, co potwierdziło użyteczność tego podejścia w środowiskach nielaboratoryjnych.
+W polskim środowisku naukowym warto wyróżnić rozwiązania opracowane przez zespół prof. Andrzeja Materki z Politechniki Łódzkiej \cite{materka2006alternate, materka2007virtual}. Autorzy zaproponowali system SSVEP wykorzystujący naprzemienną stymulację pól wzrokowych, w której prawa i lewa połowa pola widzenia użytkownika były naprzemiennie pobudzane światłem LED. Takie podejście wzmacniało różnice między sygnałami rejestrowanymi z odpowiednich półkul mózgowych. Dodatkowo zastosowano różnicowy pomiar EEG z elektrod rozmieszczonych symetrycznie nad obszarami potylicznymi (O1, O2), co pozwalało eliminować artefakty symetryczne i poprawiało selektywność pomiaru. Naprzemienna stymulacja pól wzrokowych przyspieszała komunikację między użytkownikiem a systemem, znajdując zastosowanie w praktycznych interfejsach, takich jak wirtualna klawiatura umożliwiająca wybieranie numerów telefonu. 
+
+Na Uniwersytecie Warszawskim zespół kierowany przez prof. Piotra Durkę opracował interfejs SSVEP z dynamicznie zmieniającym się zestawem bodźców \cite{durka2009open}. System był częścią projektu open-source rozwijanego na Wydziale Fizyki UW. Wykorzystywał on adaptacyjne menu, w którym elementy zmieniały pozycję i kształt w zależności od wyników wcześniejszych klasyfikacji. Takie rozwiązanie zmniejszało zmęczenie użytkownika i skracało czas potrzebny na wybór właściwej opcji. Interfejs testowano w warunkach zbliżonych do rzeczywistych, z użyciem lekkiego, przenośnego zestawu EEG oraz standardowego monitora LCD jako źródła bodźców. Badania wykazały, że nawet przy niższej jakości sygnału możliwe było uzyskanie stabilnych odpowiedzi SSVEP, co potwierdziło użyteczność tego podejścia w środowiskach nielaboratoryjnych.
 
 Różne grupy badawcze eksperymentowały z alternatywnymi formami bodźców. Bakardjian, Tanaka i Cichocki \cite{bakardjian2010optimization} opracowali interfejs z ośmioma komendami, w którym bodźce realizowano za pomocą diod LED rozmieszczonych w okręgu wokół monitora. System osiągał wysoką stabilność i rozdzielczość częstotliwościową przy niewielkim zużyciu energii. Inne prace wykorzystywały wzory szachownicowe lub zmieniające się figury geometryczne jako bodźce wzrokowe, co pozwalało uzyskać wyraźniejsze odpowiedzi SSVEP przy mniejszym zmęczeniu wzroku \cite{chen2015}. Kuś i in. \cite{kus2013quantification} zaproponowali połączenie diod LED i bodźców generowanych na ekranie LCD, co umożliwiło zwiększenie liczby możliwych klas przy zachowaniu synchronizacji czasowej między źródłami światła. Systemy Nakanishiego i współpracowników \cite{nakanishi2015} wprowadziły kodowanie częstotliwościowo-fazowe (FPC), w którym bodźce różniły się nie tylko częstotliwością, lecz także fazą początkową, zwiększając liczbę komend przy ograniczonej przestrzeni ekranu. Bodźce rozmieszczano koncentrycznie wokół punktu fiksacji, co zmniejszało obciążenie wzrokowe i poprawiało komfort użytkowania. Systemy te znalazły zastosowanie m.in. w sterowaniu ruchem kursora, pojazdów mobilnych i dronów. W eksperymentach uzyskiwano czasy reakcji poniżej 2~s przy zachowaniu dokładności powyżej 90\%, co czyniło je użytecznymi w sterowaniu w czasie rzeczywistym.
 

@@ -14,14 +14,56 @@
 
 \chapter*{Wstęp}
 
-Wstęp powinien być nie dłuższy niż 2 strony. Najlepiej napisać go dopiero, gdy praca jest już skończona i wszystkie jej części spisane.
+Rozwój technologii komputerowych nieustannie przesuwa granice możliwości
+interakcji człowieka z maszyną. Tradycyjne urządzenia wejściowe ---
+klawiatura i mysz --- wymagają sprawności ruchowej, której nie posiadają
+osoby dotknięte chorobami neurologicznymi takimi jak stwardnienie zanikowe
+boczne, porażenie czterokończynowe czy zespół zamknięcia. Dla tej grupy
+pacjentów interfejsy mózg-komputer (ang.~\textit{Brain-Computer Interface},
+BCI) stanowią często jedyną możliwość komunikacji ze światem zewnętrznym
+i samodzielnego sterowania urządzeniami. Rosnące zainteresowanie tą
+technologią, postęp w miniaturyzacji sprzętu EEG oraz dostępność
+bibliotek do przetwarzania sygnałów biomedycznych sprawiają, że budowa
+funkcjonalnego systemu BCI stała się możliwa poza środowiskiem czysto
+laboratoryjnym.
 
-Wstęp powinien zawierać:
+Spośród paradygmatów stosowanych w systemach BCI, wzrokowe potencjały
+wywołane stanu ustalonego (ang.~\textit{Steady-State Visual Evoked
+Potentials}, SSVEP) wyróżniają się wysoką skutecznością klasyfikacji,
+krótkim czasem uczenia się przez użytkownika oraz brakiem konieczności
+indywidualnej kalibracji klasyfikatora. Zjawisko to polega na
+synchronizacji aktywności neuronów kory wzrokowej z rytmem migającego
+bodźca wizualnego, co generuje charakterystyczne prążki w widmie sygnału
+EEG. Umożliwia to jednoznaczne powiązanie intencji użytkownika
+z konkretną komendą sterującą na podstawie samego skupienia wzroku.
 
-\begin{enumerate}
-\item Opis dziedziny jakiej dotyczy praca, ze wskazaniem, że temat pracy jest ważny, bieżący, itp.
-\item Jaki problem z dziedziny się rozwiązuje.
-\item Cel i teza pracy
-\item W jaki sposób cel zostanie osiągnięty a tez potwierdzona.
-\item Struktura pracy.
-\end{enumerate} 
+Niniejsza praca podejmuje problem zaprojektowania i implementacji
+interfejsu SSVEP umożliwiającego sterowanie kursorem myszy w czasie
+rzeczywistym przy użyciu ogólnodostępnego sprzętu EEG. Celem pracy
+jest zbudowanie działającego systemu BCI opartego na płytce OpenBCI
+Cyton, weryfikacja jego skuteczności w badaniu z udziałem użytkowników
+oraz ocena użyteczności interfejsu. Przyjęto tezę, że system oparty
+na analizie korelacji kanonicznej (CCA) jest w stanie poprawnie
+klasyfikować komendy sterujące u większości użytkowników bez
+przeprowadzania indywidualnej sesji treningowej.
+
+Cel został osiągnięty poprzez kolejne etapy: analizę literatury
+dotyczącej metod przetwarzania sygnału SSVEP, projekt architektury
+wieloprocesowej systemu, implementację modułów akwizycji, filtracji,
+klasyfikacji i stymulacji wizualnej, a następnie przeprowadzenie
+badania z trzema uczestnikami obejmującego zadanie sterowania
+kursorem oraz ocenę skuteczności klasyfikacji komend.
+
+Praca składa się z czterech rozdziałów. Rozdział~pierwszy wprowadza
+pojęcie interfejsu mózg-komputer, omawia metody rejestracji aktywności
+mózgu ze szczególnym uwzględnieniem elektroencefalografii oraz opisuje
+rytmy EEG stanowiące podstawę działania systemów BCI. Rozdział~drugi
+przedstawia zjawisko SSVEP, strukturę interfejsu opartego na tym
+paradygmacie, metody prezentacji bodźców wizualnych oraz algorytmy
+przetwarzania sygnału --- analizę widmową i analizę korelacji
+kanonicznej. Rozdział~trzeci zawiera opis projektu i implementacji
+systemu: założenia projektowe, architekturę modułową, dobór częstotliwości
+stymulacji, implementację klasyfikatora CCA oraz mechanizm bufora
+decyzyjnego. Rozdział~czwarty przedstawia wyniki badania przeprowadzonego
+z udziałem trzech uczestników wraz z omówieniem uzyskanych wyników
+i wnioskami dotyczącymi dalszego rozwoju systemu.

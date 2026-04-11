@@ -14,11 +14,90 @@
 
 \chapter*{Podsumowanie}
 
-Podsumowanie pracy powinno na maksymalnie dwóch stronach przedstawić główne wyniki pracy dyplomowej. Struktura zakończenia to:
-\begin{enumerate}
-\item Przypomnienie celu i hipotez
-\item Co w pracy wykonano by cel osiągnąć (analiza, projekt, oprogramowanie, badania eksperymentalne)
-\item Omówienie głównych wyników pracy
-\item Jak wyniki wzbogacają dziedzinę
-\item Zamknięcie np. poprzez wskazanie dalszych kierunków badań.
-\end{enumerate}
+% -------------------------------------------------------
+% 1. Przypomnienie celu
+% -------------------------------------------------------
+Celem niniejszej pracy było zaprojektowanie i implementacja interfejsu
+mózg-komputer umożliwiającego sterowanie kursorem myszy za pomocą
+wzrokowych potencjałów wywołanych stanu ustalonego (SSVEP).
+Postawione wymagania obejmowały obsługę pięciu komend sterujących
+(ruch w czterech kierunkach oraz kliknięcie lewym przyciskiem myszy),
+działanie w czasie rzeczywistym oraz łączne opóźnienie systemu
+nieprzekraczające 5 sekund.
+
+% -------------------------------------------------------
+% 2. Co wykonano
+% -------------------------------------------------------
+W ramach pracy przeprowadzono analizę literatury dotyczącej interfejsów
+BCI opartych na SSVEP, ze szczególnym uwzględnieniem metod klasyfikacji
+sygnału EEG. Na tej podstawie zaprojektowano i zaimplementowano system
+w języku Python, składający się z modułu akwizycji sygnału EEG
+(płytka OpenBCI Cyton, biblioteka BrainFlow), modułu przetwarzania
+sygnału (filtracja FIR z oknem Hamminga, filtr zaporowy 50~Hz,
+biblioteka MNE-Python) oraz modułu klasyfikacji opartego na analizie
+korelacji kanonicznej (CCA, biblioteka scikit-learn). Moduł stymulujący
+zrealizowano przy użyciu biblioteki PyQt5 w postaci pełnoekranowej
+nakładki z pięcioma migającymi bodźcami o częstotliwościach 6,66~Hz,
+7,5~Hz, 8,57~Hz, 10,0~Hz i 12,0~Hz, dobranych jako całkowite
+dzielniki częstotliwości odświeżania monitora (60~Hz).
+Architektura wieloprocesowa z kolejką komend zapewnia niezależność
+modułu stymulacji od obliczeń klasyfikatora.
+Przeprowadzono również badanie z udziałem trzech uczestników,
+obejmujące zadanie sterowania kursorem oraz zadanie skuteczności
+klasyfikacji komend, uzupełnione ankietą subiektywnej oceny systemu.
+
+% -------------------------------------------------------
+% 3. Główne wyniki
+% -------------------------------------------------------
+Zrealizowany system spełnia postawione wymagania funkcjonalne
+i pozafunkcjonalne. Minimalne opóźnienie od momentu skupienia wzroku
+do wykonania komendy wynosi 4,2~s, mieszcząc się w założonym limicie
+5~s. Badanie z udziałem trzech uczestników wykazało zróżnicowane,
+lecz obiecujące wyniki. Dwóch uczestników osiągnęło skuteczność
+klasyfikacji komend na poziomie odpowiednio 87\% i 100\%,
+przy czym u drugiego uczestnika zaobserwowano problem wielokrotnych
+aktywacji tej samej komendy, wynikający z silnej odpowiedzi SSVEP
+przekraczającej próg klasyfikatora przez cały czas skupienia wzroku.
+Trzeci uczestnik wykazał znaczące trudności z obsługą systemu
+przy jednoczesnej obecności pięciu bodźców na ekranie,
+osiągając skuteczność 60\% przy 33\% błędnych klasyfikacji.
+Zjawisko to jest zgodne z opisywanym w literaturze fenomenem
+\textit{BCI inefficiency}, dotyczącym około 15--25\% populacji
+\cite{vialatte2010}. Czasy ukończenia zadania sterowania kursorem
+wyniosły średnio 281~s i 236~s dla dwóch uczestników,
+którzy zdołali je ukończyć.
+
+% -------------------------------------------------------
+% 4. Wkład w dziedzinę
+% -------------------------------------------------------
+Praca potwierdza praktyczną przydatność metody CCA jako klasyfikatora
+niewymagającego kalibracji per użytkownik w systemach SSVEP
+działających w czasie rzeczywistym. Wyniki badania wskazują,
+że nawet przy relatywnie długim oknie analizy (4~s) system
+jest zdolny do stabilnej klasyfikacji u większości użytkowników.
+Zidentyfikowano dwa istotne ograniczenia implementacyjne:
+brak adaptacyjnego progu klasyfikacji prowadzący do wielokrotnych
+aktywacji u użytkowników z silną odpowiedzią SSVEP
+oraz brak mechanizmu selekcji częstotliwości stymulacji
+dopasowanego do indywidualnych cech użytkownika.
+
+% -------------------------------------------------------
+% 5. Kierunki dalszych badań
+% -------------------------------------------------------
+Dalszy rozwój systemu mógłby objąć wprowadzenie krótkiej sesji
+kalibracyjnej wyznaczającej indywidualny próg $\theta$ oraz
+optymalny czas opóźnienia wykonania kolejnych komend dla każdego użytkownika.
+Wartościowym uzupełnieniem byłoby również dodanie wizualnego
+wskaźnika bieżącej wartości współczynnika korelacji kanonicznej
+$\rho$ w interfejsie graficznym, co pozwoliłoby użytkownikowi
+na bieżąco oceniać jakość skupienia wzroku i skrócić czas reakcji.
+Na podstawie sugestii uczestników badania warto rozważyć eksperymenty z bodźcami wyświetlanymi na tle pulpitu systemu operacyjnego zamiast jednolitego czarnego ekranu. Takie podejście mogłoby zmniejszyć dyskomfort wzrokowy przy dłuższym użytkowaniu, choć wiązałoby się z ryzykiem obniżenia amplitudy odpowiedzi SSVEP
+Rozszerzenie zestawu elektrod o dodatkowe kanały potyliczne
+(POz, PO3, PO4) mogłoby zwiększyć czułość klasyfikatora
+u uczestników z słabą odpowiedzią SSVEP.
+
+Interesującym kierunkiem byłoby także zbadanie możliwości
+zastąpienia lub uzupełnienia metody CCA algorytmem
+FBCCA (Filter Bank CCA), który poprzez analizę sygnału
+w wielu podzakresach częstotliwościowych wykazuje wyższą
+skuteczność detekcji przy krótszych oknach analizy \cite{chen2015}.

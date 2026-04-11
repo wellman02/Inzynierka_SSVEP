@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.cross_decomposition import CCA
-from .signal_utils import filter_signal, compute_fft, compute_psd
+from .signal_utils import filter_signal
 
 def generate_references(freq, fs, n_samples, n_harmonics=2):
     """Generuje sygnały referencyjne (sin i cos) dla CCA."""

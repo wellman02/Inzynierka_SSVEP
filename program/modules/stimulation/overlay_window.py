@@ -95,6 +95,9 @@ class OverlayWindow(QOpenGLWidget):
         margin = 60
         
         pos = {
+            # This part of the code is setting up the positions of different stimuli on the screen for
+            # a reaction time test. Each stimulus is represented by a colored square at a specific
+            # position. Here's what each line is doing:
             "UP":    QRect((self.width - size) // 2, margin, size, size),
             "DOWN":  QRect((self.width - size) // 2, self.height - size - margin, size, size),
             "LEFT":  QRect(margin, (self.height - size) // 2, size, size),
@@ -130,12 +133,12 @@ class OverlayWindow(QOpenGLWidget):
         for stim in self.stimuli:
             if stim.freq > 0:
                 # Logika podziału klatek (Square Wave)
-                if (self.frame_counter % stim.frames_per_cycle) < (stim.frames_per_cycle / 2):
-                    qp.fillRect(stim.rect, stim.color)
+                # if (self.frame_counter % stim.frames_per_cycle) < (stim.frames_per_cycle / 2):
+                qp.fillRect(stim.rect, stim.color)
                     
-        for i, sq in enumerate(self.test_squares):
-            if not self.test_clicked[i]:
-                qp.fillRect(sq, Qt.red)
+        # for i, sq in enumerate(self.test_squares):
+        #     if not self.test_clicked[i]:
+        #         qp.fillRect(sq, Qt.red)
 
 def run_overlay(cmd_queue):
     app = QApplication(sys.argv)

@@ -19,6 +19,8 @@
 \usepackage{lipsum}           % lorem ipsum
 \usepackage{tikz}
 \usepackage{graphicx}     % do wstawiania PDF-ów/obrazków
+\usepackage{multirow}
+\usepackage{booktabs} 
 
 \usetikzlibrary{shapes.geometric, arrows}
 
@@ -87,6 +89,12 @@
 \include{chapter3} % chapter3.tex zawiera treść rozdziału 3
 
 
+%----------------------------------------------------------------------------------------
+%	ROZDZIAŁ 4
+%----------------------------------------------------------------------------------------
+\include{chapter4} % chapter4.tex zawiera treść rozdziału 3
+
+
 
 %----------------------------------------------------------------------------------------
 %	ZAKOŃCZENIE PRACY DYPLOMOWEJ (JK - design and implementation)
@@ -144,7 +152,8 @@
 \pagestyle{fancy} 
 \begin{appendix}
 \appendix
-\include{appendixA} % conclusions.tex zawiera treść zakończenia/podsumowania pracy dyplomowej
+\include{protokol} 
+\include{ankieta} % conclusions.tex zawiera treść zakończenia/podsumowania pracy dyplomowej
 \end{appendix}
 % ----------------------------------------------------------------------------------------
 % Koniec dokumentu
