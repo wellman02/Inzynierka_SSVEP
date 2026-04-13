@@ -15,24 +15,15 @@ z protokołem stanowiącym Załącznik~\ref{appendix:protokol}.
 \section{Protokół badania}
 
 W badaniu wzięły udział trzy osoby, które nie miały wcześniejszego
-doświadczenia z interfejsami mózg-komputer. Sesja składała się z sześciu
-etapów opisanych szczegółowo w protokole (Załącznik~\ref{appendix:protokol}):
-przygotowania uczestnika, montażu elektrod, sesji zapoznawczej,
-dwóch zadań właściwych oraz wypełnienia ankiety. Elektrody EEG umieszczano
-w punktach O1, O2 i Oz zgodnie z systemem 10-20, a impedancja
-była weryfikowana przed każdą sesją.
+doświadczenia z interfejsami mózg--komputer. Sesja składała się z sześciu
+etapów opisanych szczegółowo w protokole (Załącznik~\ref{appendix:protokol}).
 
-Rejestrację wyników zadania skuteczności komend prowadzono na podstawie
-logu terminala generowanego przez moduł akwizycji. Każda wykryta
-i wykonana komenda była zapisywana w czasie rzeczywistym ze znacznikiem
-częstotliwości i wartością współczynnika korelacji kanonicznej $\rho$.
-Czasy ukończenia zadania z klikaniem rejestrowano ręcznie przy użyciu
-stopera. Po zakończeniu sesji każdy uczestnik wypełniał ankietę
-(Załącznik~\ref{appendix:ankieta}).
+Na początku uczestnik zapoznawał się z celem eksperymentu oraz zasadą działania interfejsu SSVEP. Następnie przeprowadzano montaż elektrod EEG w punktach O1, O2 oraz Oz, kontrolując poziom impedancji w celu zapewnienia poprawnej jakości sygnału. Uczestnik zajmował miejsce w odległości około 60--70~cm od monitora. Po przygotowaniu rozpoczynano krótką sesję zapoznawczą, w trakcie której badany mógł swobodnie eksplorować działanie systemu. W dalszej części realizowano zadanie polegające na sterowaniu kursorem i klikaniu w cele o malejących rozmiarach. Czasy ukończenia zadania z klikaniem rejestrowano ręcznie przy użyciu stopera. Następnie przechodzono do zadania oceniającego skuteczność klasyfikacji komend. Uczestnik wykonywał polecenia wydawane przez prowadzącego w losowej kolejności, a każda próba była klasyfikowana pod względem poprawności odpowiedzi systemu.
+
+Po zakończeniu części eksperymentalnej uczestnik wypełniał ankietę dotyczącą subiektywnej oceny działania interfejsu. Obejmuje ona zarówno odczucia związane z jego użytecznością, jak i poziom obciążenia poznawczego oraz fizycznego (Załącznik~\ref{appendix:ankieta}).
 
 % -------------------------------------------------------
-\subsection*{Zadanie 1 - sterowanie kursorem}
-
+\section{Wyniki badania}
 Pierwsze zadanie polegało na przemieszczeniu kursora myszy i kliknięciu
 kolejno w trzy czerwone kwadraty o wymiarach $200\times200$, $100\times100$
 oraz $50\times50$ pikseli, wyświetlane na ekranie na raz. 
@@ -41,8 +32,8 @@ jak i czas oczekiwania na reakcję klasyfikatora.
 
 Uczestnik oznaczony jako Osoba~3 nie był w stanie ukończyć zadania
 w żadnym z podejść z powodu trudności ze skupieniem wzroku
-na stymulatorach przy jednoczesnej obecności wszystkich pięciu bodźców
-na ekranie - szczegółowe omówienie tego przypadku zawiera
+na polach stymulatora przy jednoczesnej obecności wszystkich pięciu bodźców
+na ekranie --- szczegółowe omówienie tego przypadku zawiera
 sekcja~\ref{sec:dyskusja}.
 
 Wyniki pozostałych dwóch uczestników zestawiono w tabeli~\ref{tab:task1}.
@@ -66,7 +57,7 @@ Wyniki pozostałych dwóch uczestników zestawiono w tabeli~\ref{tab:task1}.
 Osoba~1 uzyskała stabilne wyniki w pierwszym i trzecim podejściu
 (261~s i 270~s), natomiast drugie podejście było wyraźnie dłuższe
 (312~s). Osoba~2 osiągnęła najlepszy wynik w trzecim podejściu (191~s),
-co sugeruje efekt uczenia się - użytkownik stopniowo lepiej opanowywał
+co sugeruje efekt uczenia się --- użytkownik stopniowo lepiej opanowywał
 technikę skupiania wzroku na bodźcu. Znaczące wydłużenie czasu
 w drugim podejściu u Osoby~2 (310~s) może wynikać z chwilowego
 zmęczenia lub trudności z trafieniem kursorem w mniejsze kwadraty,
@@ -79,20 +70,18 @@ Przy konieczności wykonania kilkunastu komend na jedno podejście,
 samo opóźnienie systemu stanowi istotną składową łącznego czasu zadania.
 
 % -------------------------------------------------------
-\subsection*{Zadanie 2 - skuteczność klasyfikacji komend}
-
 Drugie zadanie polegało na wykonaniu przez uczestnika pięciu komend
 (prawo, lewo, góra, dół, kliknięcie) w trzech podejściach,
 po jednej komendzie na bodziec. Prowadzący wydawał polecenia ustnie
 w losowej kolejności. Wynik każdej próby
-klasyfikowano jako sukces~(S), niepowodzenie~(N) - brak reakcji systemu
-w czasie poniżej 8~s - lub błąd~(B) - wykonanie innej komendy
+klasyfikowano jako sukces~(S), niepowodzenie~(N) --- brak reakcji systemu
+w czasie poniżej 8~s --- lub błąd~(B) --- wykonanie innej komendy
 niż oczekiwana. Odnotowywano również przypadki wielokrotnej
 aktywacji komendy (SX2, SX3), gdy bufor decyzyjny wyzwalał
 tę samą komendę kilkukrotnie podczas jednego skupienia wzroku.
 
 Zbiorcze wyniki skuteczności przedstawia tabela~\ref{tab:task2_summary},
-natomiast rozkład wyników per komenda - tabela~\ref{tab:task2_per_cmd}.
+natomiast rozkład wyników per komenda --- tabela~\ref{tab:task2_per_cmd}.
 
 \begin{table}[!ht]
 \centering
@@ -112,7 +101,7 @@ natomiast rozkład wyników per komenda - tabela~\ref{tab:task2_per_cmd}.
 
 \begin{table}[!ht]
 \centering
-\caption{Skuteczność per komenda - liczba Sukcesów / Błędów / Niepowodzeń
+\caption{Skuteczność per komenda --- liczba Sukcesów / Błędów / Niepowodzeń
 w 3 podejściach}
 \label{tab:task2_per_cmd}
 \begin{tabular}{lccccc}
@@ -120,7 +109,7 @@ w 3 podejściach}
     \textbf{Komenda} & \multicolumn{2}{c}{\textbf{Osoba 1}}
         & \multicolumn{2}{c}{\textbf{Osoba 2}}
         & \textbf{Osoba 3} \\
-    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(l){6-6}
+    \cmidrule(lr){2--3}\cmidrule(lr){4--5}\cmidrule(l){6--6}
     & S & B/N & S & B/N & S / B / N \\
     \midrule
     Prawo  (10,0 Hz) & 3/3 & 0 & 3/3 & 0     & 2/3 / 1B / 0N \\
@@ -134,7 +123,7 @@ w 3 podejściach}
 
 Osoba~1 osiągnęła skuteczność 87\%, bez ani jednego błędnego
 zaklasyfikowania komendy. Jedynym problemem były dwa niepowodzenia
-przy komendzie góra (częstotliwość 6,66~Hz) - klasyfikator
+przy komendzie góra (częstotliwość 6,66~Hz) --- klasyfikator
 nie przekroczył progu $\theta = 0{,}3$ w dopuszczalnym czasie.
 Możliwą przyczyną jest niższa czułość uczestnika na tę konkretną częstotliwość stymulacji.
 
@@ -144,7 +133,7 @@ zanim użytkownik oderwał wzrok od bodźca. Świadczy to o bardzo
 silnej odpowiedzi SSVEP u tej osoby przy jednoczesnym zbyt krótkim
 czasie blokady cooldown (0,5~s) w stosunku do czasu reakcji.
 Wartość progu $\theta = 0{,}3$ okazała się zbyt niska
-dla tego uczestnika - przy silnym sygnale system reagował
+dla tego uczestnika --- przy silnym sygnale system reagował
 wielokrotnie w czasie jednego skupienia wzroku.
 
 Osoba~3 osiągnęła skuteczność 60\% przy 33\% błędów,
@@ -155,14 +144,14 @@ w sekcji~\ref{sec:dyskusja}.
 % -------------------------------------------------------
 \section{Wyniki ankiety}
 
+
 Po zakończeniu sesji każdy uczestnik wypełnił ankietę oceny systemu
-złożoną z trzech części: oceny ogólnej (skala 1-5), oceny obciążenia
-podczas zadania (skala 1-5) oraz pytań otwartych.
-Wyniki liczbowe zestawiono w tabeli~\ref{tab:ankieta}.
+złożoną z trzech części: oceny ogólnej (skala 1--5), oceny obciążenia
+podczas zadania (skala 1--5) oraz pytań otwartych. Wzór ankiety zamieszczono w sekcji~\ref{appendix:ankieta}. Wyniki liczbowe zestawiono w tabeli~\ref{tab:ankieta}.
 
 \begin{table}[!ht]
 \centering
-\caption{Wyniki ankiety - oceny w skali 1--5}
+\caption{Wyniki ankiety --- oceny w skali 1--5}
 \label{tab:ankieta}
 \begin{tabular}{lp{5.5cm}ccc}
     \toprule
@@ -186,7 +175,8 @@ Wyniki liczbowe zestawiono w tabeli~\ref{tab:ankieta}.
 \end{tabular}
 \end{table}
 
-Osoba~1 oceniła system pozytywnie - wysokie noty za intuicyjność
+
+Osoba~1 oceniła system pozytywnie --- wysokie noty za intuicyjność
 i chęć ponownego użycia (5/5), przy umiarkowanej ocenie
 akceptowalności czasu oczekiwania (3/5). Koncentracja wymagana
 do obsługi oceniona została bardzo wysoko (5/5), natomiast
@@ -202,7 +192,7 @@ komend (5/5). Niska ocena braku dyskomfortu bodźców (2/5)
 i chęci ponownego użycia (2/5) koreluje bezpośrednio
 z problemem wielokrotnych aktywacji, który był dominującym
 doświadczeniem tej osoby. Uczestnik zaproponował ciekawe
-techniki skupiania wzroku - obserwowanie wzorków i cieni
+techniki skupiania wzroku --- obserwowanie wzorków i cieni
 wokół kwadratów zamiast patrzenia w ich centrum.
 Sugerował też możliwość poruszania się i mówienia
 podczas badania, co jest typową potrzebą użytkowników
@@ -224,55 +214,6 @@ migotania bodźców.
 \section{Dyskusja wyników}
 \label{sec:dyskusja}
 
-\subsection*{Przypadek Osoby 3 - zjawisko BCI inefficiency}
-
-Osoba~3 stanowi przypadek szczególny, wymagający oddzielnego omówienia.
-Uczestnik wykazywał znaczące trudności ze skupieniem wzroku na wybranym
-bodźcu w obecności pozostałych czterech stymulatorów na ekranie.
-Wykluczona została możliwość nieprawidłowego umiejscowienia elektrod
-oraz zbyt wysokiej impedancji kontaktu. Obniżenie progu klasyfikacji
-z $\theta = 0{,}3$ do $\theta = 0{,}26$ nie przyniosło
-znaczącej poprawy skuteczności.
-
-Dopiero po usunięciu pozostałych stymulatorów z ekranu
-i pozostawieniu jednego aktywnego bodźca uczestnik był
-w stanie wykonać zadanie skuteczności komend, uzyskując
-zadowalające wyniki dla częstotliwości 7,5~Hz i 8,57~Hz,
-przy których klasyfikator rejestrował wartości $\rho$
-sięgające nawet 0,45. Pozostałe częstotliwości generowały
-niestabilne lub słabe odpowiedzi.
-
-Zjawisko to jest opisane w literaturze jako
-\textit{BCI inefficiency} - szacuje się, że około 15--25\%
-populacji nie jest w stanie efektywnie korzystać z interfejsów
-SSVEP niezależnie od jakości sygnału EEG \cite{vialatte2010}.
-Może ono wynikać z indywidualnych różnic neuroanatomicznych
-w obszarze kory wzrokowej lub z trudności z kontrolą
-uwagi wzrokowej w obecności wielu konkurujących bodźców.
-Wynik Osoby~3 wskazuje ponadto na potrzebę adaptacyjnego
-doboru częstotliwości stymulacji do indywidualnych
-cech użytkownika - element, który mógłby stanowić
-kierunek dalszego rozwoju systemu.
-
-\subsection*{Problem wielokrotnych aktywacji}
-
-Wyniki Osoby~2 ujawniły pewne ograniczenie obecnej implementacji
-bufora decyzyjnego. Przy silnej odpowiedzi SSVEP wartość $\rho$
-utrzymuje się powyżej progu $\theta$ przez cały czas skupienia
-wzroku na bodźcu, co powoduje cykliczne wyzwalanie komend
-co 0,5~s (czas blokady cooldown). W 87\% prób Osoby~2
-komenda była aktywowana więcej niż jeden raz.
-
-Rozwiązaniem tego problemu może być wydłużenie czasu blokady
-lub wprowadzenie mechanizmu detekcji oderwania wzroku
-od bodźca, np. na podstawie nagłego spadku wartości $\rho$
-poniżej pewnego progu. Alternatywnym podejściem
-byłoby automatyczne dostosowanie progu $\theta$ do
-charakterystyki sygnału konkretnego użytkownika
-w sesji kalibracyjnej.
-
-\subsection*{Zależność skuteczności od częstotliwości stymulacji}
-
 Dane z tabeli~\ref{tab:task2_per_cmd} wskazują na wyraźne
 różnice w skuteczności klasyfikacji w zależności od częstotliwości
 bodźca. Komenda góra (6,66~Hz) generowała największą liczbę
@@ -290,7 +231,6 @@ W systemach z większą liczbą użytkowników warta rozważenia
 byłaby krótka sesja selekcji częstotliwości przed właściwym
 badaniem.
 
-\subsection*{Porównanie z literaturą}
 
 Uzyskane wyniki skuteczności dla Osoby~1 (87\%) i Osoby~2 (100\%)
 mieszczą się w zakresie typowym dla systemów SSVEP opartych
@@ -309,3 +249,51 @@ zwrotnego wizualnego informującego o stanie klasyfikatora.
 Wprowadzenie wizualnego wskaźnika wartości $\rho$
 w czasie rzeczywistym mogłoby skrócić czas reakcji
 użytkownika i zmniejszyć liczbę niepowodzeń.
+
+
+Wyniki Osoby~2 ujawniły pewne ograniczenie obecnej implementacji
+bufora decyzyjnego. Przy silnej odpowiedzi SSVEP wartość $\rho$
+utrzymuje się powyżej progu $\theta$ przez cały czas skupienia
+wzroku na bodźcu, co powoduje cykliczne wyzwalanie komend
+co 0,5~s (czas blokady cooldown). W 87\% prób Osoby~2
+komenda była aktywowana więcej niż jeden raz.
+
+Rozwiązaniem tego problemu może być wydłużenie czasu blokady
+lub wprowadzenie mechanizmu detekcji oderwania wzroku
+od bodźca, np. na podstawie nagłego spadku wartości $\rho$
+poniżej pewnego progu. Alternatywnym podejściem
+byłoby automatyczne dostosowanie progu $\theta$ do
+charakterystyki sygnału konkretnego użytkownika
+w sesji kalibracyjnej.
+
+Osoba~3 stanowi przypadek szczególny, wymagający oddzielnego omówienia.
+Uczestnik wykazywał znaczące trudności ze skupieniem wzroku na wybranym
+bodźcu w obecności pozostałych czterech stymulatorów na ekranie.
+Wykluczona została możliwość nieprawidłowego umiejscowienia elektrod
+oraz zbyt wysokiej impedancji kontaktu. Obniżenie progu klasyfikacji
+z $\theta = 0{,}3$ do $\theta = 0{,}26$ nie przyniosło
+znaczącej poprawy skuteczności.
+
+Dopiero po usunięciu pozostałych stymulatorów z ekranu
+i pozostawieniu jednego aktywnego bodźca uczestnik był
+w stanie wykonać zadanie skuteczności komend, uzyskując
+zadowalające wyniki dla częstotliwości 7,5~Hz i 8,57~Hz,
+przy których klasyfikator rejestrował wartości $\rho$
+sięgające nawet 0,45. Pozostałe częstotliwości generowały
+niestabilne lub słabe odpowiedzi.
+
+Zjawisko to jest opisane w literaturze jako
+\textit{BCI inefficiency} --- szacuje się, że około 15--25\%
+populacji nie jest w stanie efektywnie korzystać z interfejsów
+SSVEP niezależnie od jakości sygnału EEG \cite{vialatte2010}.
+Może ono wynikać z indywidualnych różnic neuroanatomicznych
+w obszarze kory wzrokowej lub z trudności z kontrolą
+uwagi wzrokowej w obecności wielu konkurujących bodźców.
+Wynik Osoby~3 wskazuje ponadto na potrzebę adaptacyjnego
+doboru częstotliwości stymulacji do indywidualnych
+cech użytkownika --- element, który mógłby stanowić
+kierunek dalszego rozwoju systemu.
+
+
+
+

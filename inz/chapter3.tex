@@ -4,7 +4,7 @@
 
 \chapter{Projekt oraz implementacja interfejsu SSVEP}
 
-W niniejszym rozdziale przedstawiono główne założenia projektowe oraz ogólną koncepcję implementacji systemu interfejsu mózg-komputer opartego na zjawisku wzrokowych potencjałów wywołanych stanu ustalonego.
+W niniejszym rozdziale przedstawiono główne założenia projektowe oraz ogólną koncepcję implementacji systemu interfejsu mózg--komputer opartego na zjawisku wzrokowych potencjałów wywołanych stanu ustalonego.
 Celem projektu jest opracowanie rozwiązania umożliwiającego sterowanie kursorem myszy za pomocą odpowiedzi neuronalnych generowanych w odpowiedzi na migoczące bodźce wzrokowe.
 Konstrukcja systemu musi zapewniać nie tylko funkcjonalność, pozwalającą na wykonywanie podstawowych komend ruchu kursora, ale również powtarzalność wyników.
 
@@ -28,7 +28,7 @@ Zdefiniowano dwie grupy wymagań: funkcjonalne, określające możliwości syste
     \item Stabilność działania systemu nie zależy od wahań jakości łącza Bluetooth (zastosowanie buforowania danych).
     \item Moduł przetwarzania sygnału musi być odporny na zakłócenia sieci energetycznej o częstotliwości 50~Hz.
     \item Aplikacja działa w sposób deterministyczny, zapewniając synchronizację częstotliwości stymulatora z częstotliwością odświeżania monitora poprzez mechanizm VSync.
-    \item Łączne opóźnienie systemu, od momentu skupienia wzroku do wykonania komendy - nie przekracza 5 sekund, co odpowiada wymaganiom stawianym interfejsom BCI użytkowanym w czasie rzeczywistym \cite{wolpaw2002}.
+    \item Łączne opóźnienie systemu, od momentu skupienia wzroku do wykonania komendy --- nie przekracza 5 sekund, co odpowiada wymaganiom stawianym interfejsom BCI użytkowanym w czasie rzeczywistym \cite{wolpaw2002}.
 \end{itemize}
 
 \section{Model systemu}
@@ -47,7 +47,7 @@ Komunikacja między procesami akwizycji i stymulacji odbywa się asynchronicznie
 
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.6\textwidth]{diagram_moj.jpg}
+    \includegraphics[width=0.6\textwidth]{diagram_moj.png}
     \caption{Model systemu interfejsu SSVEP z podziałem na moduły logiczne.}
     \label{fig:model_systemu}
 \end{figure}
@@ -55,7 +55,7 @@ Komunikacja między procesami akwizycji i stymulacji odbywa się asynchronicznie
 \section{Zestaw technologii i proces rejestracji sygnału}
 
 Do rejestracji sygnału EEG zdecydowano się zastosować moduł OpenBCI Cyton~\cite{openbci}, przedstawiony na rysunku~\ref{fig:cyton}.
-Urządzenie to oparte jest na 8-kanałowym wzmacniaczu Texas Instruments ADS1299, 24-bitowym przetworniku analogowo-cyfrowym oraz 8-bitowym mikroprocesorze PIC32MX250F128B firmy Microchip Technology.
+Urządzenie to oparte jest na 8--kanałowym wzmacniaczu Texas Instruments ADS1299, 24--bitowym przetworniku analogowo--cyfrowym oraz 8--bitowym mikroprocesorze PIC32MX250F128B firmy Microchip Technology.
 Komunikacja z jednostką centralną odbywa się bezprzewodowo przy użyciu dedykowanego odbiornika USB.
 
 \begin{figure}[!ht]
@@ -65,7 +65,7 @@ Komunikacja z jednostką centralną odbywa się bezprzewodowo przy użyciu dedyk
     \label{fig:cyton}
 \end{figure}
 
-Dane poddawane analizie pochodzą z trzech elektrod zlokalizowanych w punktach O1, O2 i Oz (kora wzrokowa) zgodnie z systemem 10-20. Wybór tych miejsc wynika z faktu, że siła odpowiedzi mózgu na migające bodźce jest najsilniejsza w jego potylicznej części.
+Dane poddawane analizie pochodzą z trzech elektrod zlokalizowanych w punktach O1, O2 i Oz (kora wzrokowa) zgodnie z systemem 10--20. Wybór tych miejsc wynika z faktu, że siła odpowiedzi mózgu na migające bodźce jest najsilniejsza w jego potylicznej części.
 
 Głównym elementem implementacji procesu akwizycji jest biblioteka \textit{BrainFlow}, zapewniająca jednolite API do komunikacji z płytką Cyton.
 W przeciwieństwie do klasycznego podejścia analizującego rozłączne, statyczne bloki danych, w systemie zastosowano mechanizm przesuwnego okna czasowego (ang.~\textit{sliding window}).
@@ -84,17 +84,17 @@ Długie okno dostarcza wiarygodnych danych, natomiast bardzo krótki krok przesu
 \section{Implementacja przetwarzania i klasyfikacji sygnału}
 
 Surowy sygnał odebrany z elektrod potylicznych (O1, O2 i Oz) poddawany jest wstępnemu oczyszczeniu przed przekazaniem do klasyfikatora.
-Filtracja realizowana jest z użyciem biblioteki MNE-Python, która implementuje filtry FIR (ang.~\textit{Finite Impulse Response}) z oknem Hamminga.
-Filtry FIR charakteryzują się liniową charakterystyką fazową, co oznacza, że wszystkie składowe częstotliwościowe sygnału zostają opóźnione o tę samą wartość - w odróżnieniu od filtrów IIR (np.~Butterwortha), które wprowadzają nieliniowe zniekształcenia fazowe.
+Filtracja realizowana jest z użyciem biblioteki MNE--Python, która implementuje filtry FIR (ang.~\textit{Finite Impulse Response}) z oknem Hamminga.
+Filtry FIR charakteryzują się liniową charakterystyką fazową, co oznacza, że wszystkie składowe częstotliwościowe sygnału zostają opóźnione o tę samą wartość --- w odróżnieniu od filtrów IIR (np.~Butterwortha), które wprowadzają nieliniowe zniekształcenia fazowe.
 Własność ta jest szczególnie istotna dla metody CCA, która opiera się na pomiarze korelacji czasowej między sygnałem EEG a sygnałami referencyjnymi.
 
 Przetwarzanie obejmuje dwa etapy:
 \begin{enumerate}
-    \item \textbf{Filtr pasmowo-przepustowy} o zakresie 1--40~Hz, eliminujący wolne dryfty sygnału (poniżej 1~Hz) oraz szumy wysokoczęstotliwościowe związane z napięciem mięśniowym (powyżej 40~Hz).
+    \item \textbf{Filtr pasmowo--przepustowy} o zakresie 1--40~Hz, eliminujący wolne dryfty sygnału (poniżej 1~Hz) oraz szumy wysokoczęstotliwościowe związane z napięciem mięśniowym (powyżej 40~Hz).
     \item \textbf{Filtr zaporowy (notch)} o częstotliwości 50~Hz usuwający zakłócenia pochodzące z sieci elektrycznej.
 \end{enumerate}
 
-Tak przygotowane przebiegi czasowe trafiają bezpośrednio do algorytmu analizującego. Funkcję realizującą opisaną filtrację pasmowo-przepustową oraz zaporową przedstawiono na listingu~\ref{alg:filter}. Wpływ filtracji na sygnał EEG oraz wynikające z niej widmo częstotliwościowe z wyraźnymi prążkami odpowiedzi SSVEP zilustrowano na rysunku~\ref{fig:ssvep_fft}.
+Tak przygotowane przebiegi czasowe trafiają bezpośrednio do algorytmu analizującego. Funkcję realizującą opisaną filtrację pasmowo--przepustową oraz zaporową przedstawiono na listingu~\ref{alg:filter}. Wpływ filtracji na sygnał EEG oraz wynikające z niej widmo częstotliwościowe z wyraźnymi prążkami odpowiedzi SSVEP zilustrowano na rysunku~\ref{fig:ssvep_fft}.
 
 \begin{figure}[!ht]
     \centering
@@ -108,36 +108,19 @@ Tak przygotowane przebiegi czasowe trafiają bezpośrednio do algorytmu analizuj
 \end{figure}
 
 
-
-\subsection*{Wybór częstotliwości stymulacji}
-
 Dobór częstotliwości bodźców wizualnych jest ograniczony przez częstotliwość odświeżania monitora LCD (60~Hz).
 Wyświetlacz może generować bodźce jedynie o częstotliwościach będących całkowitymi dzielnikami tej wartości.
 Spośród dostępnych wartości wykluczono te, które stanowią wzajemne wielokrotności. Zapobiega to nakładaniu się harmonicznych różnych bodźców w widmie EEG.
 Na tej podstawie wybrano pięć częstotliwości: 6,66~Hz, 7,5~Hz, 8,57~Hz, 10,0~Hz i 12,0~Hz, odpowiadające kolejno komendom: góra, dół, lewo, prawo i kliknięcie.
 
-\subsection*{Klasyfikacja metodą CCA}
-
-Jako docelową metodę klasyfikacji intencji użytkownika zastosowano analizę korelacji kanonicznej (ang.~\textit{Canonical Correlation Analysis}, CCA).
-W procesie detekcji przefiltrowane wielokanałowe sygnały EEG porównywane są ze sztucznie wygenerowanymi sygnałami referencyjnymi.
-Dla każdej docelowej częstotliwości stymulacji $f_k$ generowana jest macierz referencji.
-Macierz uwzględnia dwie harmoniczne ($h = 1, 2$), ponieważ odpowiedź SSVEP w korze wzrokowej pojawia się nie tylko na częstotliwości podstawowej bodźca $f_k$, lecz również na jej wielokrotnościach $2f_k$, $3f_k$ itd.~\cite{vialatte2010}.
-Uwzględnienie harmonicznych znacząco zwiększa czułość klasyfikatora.
-
-Algorytm CCA wyznacza wektory kanoniczne $\mathbf{w}_x$ i $\mathbf{w}_y$ takie, że korelacja między rzutami $\mathbf{X}\mathbf{w}_x$ i $\mathbf{Y}\mathbf{w}_y$ jest maksymalna.
-Uzyskany współczynnik korelacji kanonicznej $\rho_{f_k}$ przyjmuje wartości z przedziału $[0, 1]$.
-Częstotliwość bodźca identyfikowana jako aktualny cel skupienia wzroku użytkownika wyznaczana jest jako:
-
-\begin{equation}
-    \hat{f} = \arg\max_{f_k} \, \rho_{f_k}
-    \label{eq:cca_argmax}
-\end{equation}
-
-Implementację w języku Python z użyciem biblioteki \textit{scikit-learn} przedstawiono na listingu~\ref{alg:cca}.
-
-
-
-\subsection*{Bufor decyzyjny}
+Jako docelową metodę klasyfikacji intencji użytkownika zastosowano analizę 
+korelacji kanonicznej (CCA), której podstawy teoretyczne opisano 
+w sekcji~\ref{sec:metody_przetwarzania}. W procesie detekcji przefiltrowane 
+wielokanałowe sygnały EEG porównywane są ze sztucznie wygenerowanymi sygnałami 
+referencyjnymi dla każdej z pięciu częstotliwości stymulacji. Macierz referencji 
+uwzględnia dwie harmoniczne ($h = 1, 2$), co znacząco zwiększa czułość 
+klasyfikatora. Implementację w języku Python z użyciem biblioteki 
+\textit{scikit--learn} przedstawiono na listingu~\ref{alg:cca}.
 
 Samo wyznaczenie częstotliwości o najwyższej korelacji kanonicznej nie jest wystarczające do stabilnego sterowania, ponieważ sygnał EEG jest z natury zaszumiony i pełen artefaktów.
 W systemie zaimplementowano mechanizm bufora decyzyjnego, który wygładza wynik klasyfikacji w czasie.
@@ -158,7 +141,7 @@ Ponieważ okno analizy przesuwane jest co 100 ms ($T_{\text{krok}} = 0{,}1$~s), 
 \section{Interfejs użytkownika i wygląd stymulatora}
 
 Moduł stymulujący, odpowiedzialny za prezentację bodźców, został zrealizowany przy użyciu biblioteki \textit{PyQt5} w formie pełnoekranowego okna nakładkowego (ang.~\textit{overlay}).
-W celu wywołania jak najsilniejszej odpowiedzi SSVEP użyto białe kwadraty wyświetlane na czarnym tle. Ich położenie na ekranie odwzorowuje kierunki wywoływanych akcji sterujących kursorem myszy: górny bodziec odpowiada komendzie ruchu w górę, dolny - ruchowi w dół, lewy i prawy - odpowiednim ruchom horyzontalnym, natomiast centralny - kliknięciu lewym przyciskiem myszy.
+W celu wywołania jak najsilniejszej odpowiedzi SSVEP użyto białe kwadraty wyświetlane na czarnym tle. Ich położenie na ekranie odwzorowuje kierunki wywoływanych akcji sterujących kursorem myszy: górny bodziec odpowiada komendzie ruchu w górę, dolny --- ruchowi w dół, lewy i prawy --- odpowiednim ruchom horyzontalnym, natomiast centralny --- kliknięciu lewym przyciskiem myszy.
 
 \begin{figure}[!ht]
     \centering
@@ -166,8 +149,6 @@ W celu wywołania jak najsilniejszej odpowiedzi SSVEP użyto białe kwadraty wy�
     \caption{Wygląd ekranu stymulującego z bodźcami o wysokim kontraście.}
     \label{fig:ssvep_stym}
 \end{figure}
-
-\subsection*{Zasada migotania bodźców i sprzętowe renderowanie klatek}
 
 Aby zapewnić precyzyjną stymulację SSVEP, zjawisko migotania zostało zaimplementowane w oparciu o sprzętowe zliczanie klatek obrazu, co stanowi znacznie stabilniejszą metodę niż użycie tradycyjnych programowych timerów.
 
